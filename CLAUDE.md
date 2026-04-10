@@ -10,15 +10,15 @@ Weathered is a full-stack weather app built for the NSW Rural Fire Service Junio
 
 ## Stack (April 2026)
 
-| Layer       | Choice                                       |
-| ----------- | -------------------------------------------- |
-| Runtime     | Node.js 24 LTS                               |
-| Language    | TypeScript 6 (strict)                        |
-| Package mgr | pnpm 10 (workspaces)                         |
+| Layer       | Choice                                      |
+| ----------- | ------------------------------------------- |
+| Runtime     | Node.js 24 LTS                              |
+| Language    | TypeScript 6 (strict)                       |
+| Package mgr | pnpm 10 (workspaces)                        |
 | Backend     | Express 5 + Zod 4 + pino                    |
 | Frontend    | React 19 + Vite 8 + Tailwind v4 + shadcn/ui |
-| Shared      | Zod schemas in `packages/shared`             |
-| Tests       | Vitest 4 + Supertest + RTL                   |
+| Shared      | Zod schemas in `packages/shared`            |
+| Tests       | Vitest 4 + Supertest + RTL                  |
 
 ## Repo layout
 
@@ -55,6 +55,8 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 - Every request gets a `x-request-id` header (generated UUID or passed-through).
 - Structured pino logging: `logger.info({ key: value }, 'message')` — never string-interpolate data into the message.
 - Graceful shutdown on `SIGTERM` / `SIGINT`.
+- Upstream HTTP clients (e.g. `services/open-meteo.ts`) own their Zod response schemas as **module-private** constants — never export them. They collapse all failure modes (non-2xx, timeout `DOMException`, network `TypeError`, schema mismatch) into `UpstreamError` so callers stay simple.
+- Typed errors live in `errors/app-error.ts`. Throw `ValidationError` / `CityNotFoundError` / `UpstreamError` from services; the central error handler is the only place that maps to HTTP status + `ErrorResponse` envelope.
 
 ### Environment variables
 

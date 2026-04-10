@@ -328,11 +328,11 @@ weathered/
 - No `tailwind.config.js`. Theme goes in `app.css`:
 
   ```css
-  @import "tailwindcss";
+  @import 'tailwindcss';
 
   @theme {
     --color-rfs-orange: oklch(0.72 0.18 45);
-    --font-sans: "Inter", system-ui, sans-serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
   }
   ```
 
@@ -435,7 +435,7 @@ Captures the walkthrough-style checkpoints we followed during Day 1 so future se
 | 1   | Create GitHub repo + clone        | ✅     | Public, SSH clone via `github-trevor` host alias                                                                                           |
 | 2   | Toolchain check                   | ✅     | Node v24.12.0, pnpm 10.30.3, git 2.43.0                                                                                                    |
 | 3   | `.nvmrc` → `24`                   | ✅     | Picked up by `nvm use`, Vercel, Koyeb                                                                                                      |
-| 4   | pnpm workspace scaffold           | ✅     | `pnpm-workspace.yaml` → `apps/*` + `packages/*`; root `package.json` private, recursive scripts, `engines.node >= 24`                     |
+| 4   | pnpm workspace scaffold           | ✅     | `pnpm-workspace.yaml` → `apps/*` + `packages/*`; root `package.json` private, recursive scripts, `engines.node >= 24`                      |
 | 5   | `tsconfig.base.json`              | ✅     | Strict, `NodeNext`, `noUncheckedIndexedAccess`, `declaration: true` (apps override to `false`)                                             |
 | 6   | ESLint 9 flat config + Prettier   | ✅     | `defineConfig` from `eslint/config`, `strictTypeChecked` preset, `projectService: true`; no `.npmrc` (pnpm 10 auto-installs peers already) |
 | 7   | `packages/shared` Zod schemas     | ✅     | `import * as z from 'zod'` (Zod 4 docs style); exports `./src/index.ts` directly — no build step for shared                                |
@@ -820,20 +820,21 @@ Before submitting on Day 4, all of these must be true:
 Researched April 2026 options for a low-traffic demo where **cold starts during the live walkthrough would be the worst possible outcome**.
 
 **Frontend → Vercel**
+
 - Free Hobby tier, trivial git-based deploy for Vite apps
 - Custom domain, edge CDN, automatic HTTPS
 - Zero cold-start concern (it's static assets)
 
 **Backend → Koyeb** (recommended over Render/Fly/Railway/Cloudflare)
 
-| Option considered | Verdict |
-|---|---|
-| **Koyeb** ✅ | Free "nano" web service stays **always-on** (no forced sleep), deploys from git, real Docker/Express runtime, 512 MB RAM, custom domain. **Best fit.** |
-| Render | Free tier spins down after 15 min idle, up to **~30 s cold start** — exactly the embarrassment we want to avoid during the demo. |
-| Railway | No real permanent free tier in 2026 (trial credit only). |
-| Fly.io | Free allowances removed Oct 2024 for new users. |
-| Cloudflare Workers | Zero cold starts, but would require rewriting Express as a Workers handler — breaks the "real Node.js service" story the brief asks for. |
-| Vercel (backend) | Serverless-only; would require abandoning Express-as-server. Warm instance ("Scale to One") is Pro-only. |
+| Option considered  | Verdict                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Koyeb** ✅       | Free "nano" web service stays **always-on** (no forced sleep), deploys from git, real Docker/Express runtime, 512 MB RAM, custom domain. **Best fit.** |
+| Render             | Free tier spins down after 15 min idle, up to **~30 s cold start** — exactly the embarrassment we want to avoid during the demo.                       |
+| Railway            | No real permanent free tier in 2026 (trial credit only).                                                                                               |
+| Fly.io             | Free allowances removed Oct 2024 for new users.                                                                                                        |
+| Cloudflare Workers | Zero cold starts, but would require rewriting Express as a Workers handler — breaks the "real Node.js service" story the brief asks for.               |
+| Vercel (backend)   | Serverless-only; would require abandoning Express-as-server. Warm instance ("Scale to One") is Pro-only.                                               |
 
 **Recommendation: Koyeb for backend** — it lets us keep Express 5 as Express 5 (matching the brief's "Node.js service" wording), stays warm on the free tier, and deploys from a Dockerfile directly from the GitHub repo. The panel clicks the link, it responds instantly, story stays coherent.
 
