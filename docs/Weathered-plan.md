@@ -398,30 +398,68 @@ Even though this is a small app, drop these in for the "production-ready" signal
 
 ### Day 1 — Friday 11 April: Foundation & backend happy path
 
-**Morning**
+**Morning** ✅
 
-- [ ] Create GitHub repo `weathered` (decide public vs private; if private, invite `pobmail@gmail.com`)
-- [ ] `.nvmrc` → `24`, `.gitignore`, `README.md` stub
-- [ ] pnpm workspace init: root `package.json`, `pnpm-workspace.yaml`
-- [ ] Root `tsconfig.base.json` with strict settings
-- [ ] ESLint + Prettier config at root
-- [ ] Initial commit: `chore: initialize pnpm workspace`
+- [x] Create GitHub repo `weathered` (public, SSH clone)
+- [x] `.nvmrc` → `24`, `.gitignore`, `README.md` stub
+- [x] pnpm workspace init: root `package.json`, `pnpm-workspace.yaml`
+- [x] Root `tsconfig.base.json` with strict settings
+- [x] ESLint flat config + Prettier at repo root
+- [x] Move brief + assignment docs + plan into `docs/`
 
-**Afternoon**
+**Afternoon** (in progress)
 
-- [ ] `packages/shared`: Zod 4 schemas (`WeatherQuery`, `WeatherResponse`, `ErrorResponse`) + inferred TS types
-- [ ] `apps/backend`: Express 5 + TS setup, `tsx` for dev, `tsup` or `tsc` for build
-- [ ] `/api/health` endpoint
-- [ ] Config loader with Zod env validation
-- [ ] pino logger + request-ID middleware
-- [ ] CORS + Helmet
+- [x] `packages/shared`: Zod 4 schemas (`WeatherQuerySchema`, `WeatherResponseSchema`, `ErrorResponseSchema`) + inferred types
+- [x] `apps/backend`: Express 5 + TS 6 setup, `tsx` for dev
+- [x] `/api/health` endpoint
+- [x] Config loader with Zod env validation (fail-fast)
+- [x] pino logger + pino-http request-ID middleware
+- [x] CORS (explicit allowlist) + Helmet
+- [x] Graceful shutdown on `SIGTERM` / `SIGINT`
+- [x] Root `README.md`, `CLAUDE.md`, TSDoc on public exports
 - [ ] `services/open-meteo.ts`: geocode + forecast client functions
 - [ ] `services/weather.service.ts`: orchestration (geocode → forecast → normalize)
 - [ ] `/api/weather` route with Zod query validation
 - [ ] Typed error classes + central error handler
 - [ ] Manual smoke test: `curl 'http://localhost:3000/api/weather?city=Sydney'`
+- [ ] Commit: `chore(scaffold): initialize pnpm monorepo with Express 5 backend health endpoint`
 
 **End-of-day check:** curl returns a correctly shaped weather response for a real city.
+
+#### Detailed checkpoint log
+
+Captures the walkthrough-style checkpoints we followed during Day 1 so future sessions can resume without re-deriving decisions.
+
+| #   | Checkpoint                        | Status | Notes                                                                                                                                      |
+| --- | --------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Create GitHub repo + clone        | ✅     | Public, SSH clone via `github-trevor` host alias                                                                                           |
+| 2   | Toolchain check                   | ✅     | Node v24.12.0, pnpm 10.30.3, git 2.43.0                                                                                                    |
+| 3   | `.nvmrc` → `24`                   | ✅     | Picked up by `nvm use`, Vercel, Koyeb                                                                                                      |
+| 4   | pnpm workspace scaffold           | ✅     | `pnpm-workspace.yaml` → `apps/*` + `packages/*`; root `package.json` private, recursive scripts, `engines.node >= 24`                     |
+| 5   | `tsconfig.base.json`              | ✅     | Strict, `NodeNext`, `noUncheckedIndexedAccess`, `declaration: true` (apps override to `false`)                                             |
+| 6   | ESLint 9 flat config + Prettier   | ✅     | `defineConfig` from `eslint/config`, `strictTypeChecked` preset, `projectService: true`; no `.npmrc` (pnpm 10 auto-installs peers already) |
+| 7   | `packages/shared` Zod schemas     | ✅     | `import * as z from 'zod'` (Zod 4 docs style); exports `./src/index.ts` directly — no build step for shared                                |
+| 8a  | Backend dependencies installed    | ✅     | express, cors, helmet, pino, pino-http, express-rate-limit, lru-cache, zod (+ dev: tsx, pino-pretty, @types/\*, typescript)                |
+| 8b  | `apps/backend/package.json`       | ✅     | `@weathered/backend`, ESM, `tsx watch --env-file=.env` (Node 24 native env loading)                                                        |
+| 8c  | `apps/backend/tsconfig.json`      | ✅     | Extends base; **override `declaration: false`** before first `tsc` build                                                                   |
+| 8d  | `.env.example` + `.env`           | ✅     | `NODE_ENV`, `PORT`, `ALLOWED_ORIGIN`, `LOG_LEVEL`                                                                                          |
+| 8e  | `config.ts` with Zod env schema   | ✅     | Use `z.url()` for `ALLOWED_ORIGIN` (not deprecated `z.string().url()`)                                                                     |
+| 8f  | `logger.ts` (pino + pino-pretty)  | ✅     | Pretty transport in dev only                                                                                                               |
+| 8g  | `server.ts` app factory           | ✅     | `createServer(): Express` explicit return type; middleware order: helmet → cors → json → pinoHttp → routes                                 |
+| 8h  | `routes/health.ts`                | ✅     | `healthRouter: Router` explicit annotation to satisfy `strictTypeChecked` on `app.use(path, router)`                                       |
+| 8i  | `index.ts` entrypoint             | ✅     | Structured log `logger.info({ port }, 'Server listening')`; graceful shutdown on `SIGTERM`/`SIGINT`                                        |
+| 8j  | Smoke test `/api/health`          | ✅     | Returns 200 + `x-request-id` header                                                                                                        |
+| 9   | `/api/weather` route (Open-Meteo) | ⏳     | Next                                                                                                                                       |
+
+#### Lessons learned (Day 1)
+
+- **Zod 4:** `z.string().url()` rejects localhost; use the top-level `z.url()` instead. Parse errors via `z.treeifyError(error)`.
+- **Express 5 + `strictTypeChecked`:** `app.use(path, router)` triggers `no-unsafe-argument` unless the router is explicitly annotated as `Router`. Same applies to `createServer(): Express`.
+- **Template literals with numbers:** `restrict-template-expressions` flags `${port}`. Either wrap in `String(port)` or (better) use structured pino logging: `logger.info({ port }, 'msg')`.
+- **Env loading:** Node 24's native `--env-file=.env` flag eliminates the need for `dotenv`.
+- **Root `package.json` needs `"type": "module"`** to silence ESLint's module-type warning on `eslint.config.js`.
+- **pnpm monorepo declarations:** `declaration: true` at the base tsconfig level causes portability errors when apps import from `node_modules`. Apps override with `declaration: false`; only `packages/shared` needs declarations.
+- **`pino-http` + lint:** its return type confuses `no-unsafe-argument`. Narrow via an explicit `RequestHandler` annotation rather than suppressing the rule.
 
 ### Day 2 — Saturday 12 April: Frontend core
 
