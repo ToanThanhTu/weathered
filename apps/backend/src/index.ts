@@ -1,6 +1,6 @@
-import { config } from "./config.js"
-import { logger } from "./logger.js"
-import { createServer } from "./server.js"
+import { config } from './config.js'
+import { logger } from './logger.js'
+import { createServer } from './server.js'
 
 const app = createServer()
 
@@ -16,5 +16,9 @@ const shutdown = (signal: string) => {
   })
 }
 
-process.on('SIGTERM', () => { shutdown('SIGTERM'); })
-process.on('SIGINT', () => { shutdown('SIGINT'); })
+process.on('SIGTERM', () => {
+  shutdown('SIGTERM')
+})
+process.on('SIGINT', () => {
+  shutdown('SIGINT')
+})

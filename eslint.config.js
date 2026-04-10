@@ -1,7 +1,7 @@
-import eslint from "@eslint/js"
-import eslintConfigPrettier from "eslint-config-prettier"
-import { defineConfig } from "eslint/config"
-import tseslint from "typescript-eslint"
+import eslint from '@eslint/js'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import { defineConfig } from 'eslint/config'
+import tseslint from 'typescript-eslint'
 
 export default defineConfig([
   eslint.configs.recommended,
@@ -15,15 +15,15 @@ export default defineConfig([
       },
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
       ],
-      "@typescript-eslint/no-floating-promises": "error",
-      "@typescript-eslint/no-misused-promises": "error",
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
     },
   },
   {
-    ignores: ["**/dist/", "**/node_modules/", "**/*.js", "**/*.mjs"],
-  }
-]);
+    ignores: ['**/dist/', '**/node_modules/', '**/*.js', '**/*.mjs'],
+  },
+])

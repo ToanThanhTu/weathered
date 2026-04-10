@@ -42,10 +42,10 @@ weathered/
 
 Run from the repo root:
 
-| Script            | Description                             |
-| ----------------- | --------------------------------------- |
-| `pnpm dev`        | Start all dev servers in parallel       |
-| `pnpm build`      | Build all packages                      |
-| `pnpm lint`       | Lint all packages                       |
-| `pnpm typecheck`  | Typecheck all packages                  |
-| `pnpm test`       | Run tests across all packages _(pending)_ |
+| Script           | Description                               |
+| ---------------- | ----------------------------------------- |
+| `pnpm dev`       | Start all dev servers in parallel         |
+| `pnpm build`     | Build all packages                        |
+| `pnpm lint`      | Lint all packages                         |
+| `pnpm typecheck` | Typecheck all packages                    |
+| `pnpm test`      | Run tests across all packages _(pending)_ |

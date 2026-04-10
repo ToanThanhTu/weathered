@@ -4,7 +4,11 @@ import * as z from 'zod'
 
 /** Query schema for `GET /api/weather`. Used by both the backend route and the frontend search form. */
 export const WeatherQuerySchema = z.object({
-  city: z.string().trim().min(1, 'City is required').max(100, 'City name is too long')
+  city: z
+    .string()
+    .trim()
+    .min(1, 'City is required')
+    .max(100, 'City name is too long'),
 })
 
 export type WeatherQuery = z.infer<typeof WeatherQuerySchema>
@@ -17,7 +21,7 @@ export const LocationSchema = z.object({
   name: z.string(),
   country: z.string(),
   latitude: z.number(),
-  longitude: z.number()
+  longitude: z.number(),
 })
 
 export const CurrentWeatherSchema = z.object({
@@ -36,7 +40,7 @@ export const WeatherResponseSchema = z.object({
   data: z.object({
     location: LocationSchema,
     current: CurrentWeatherSchema,
-  })
+  }),
 })
 
 export type Location = z.infer<typeof LocationSchema>
@@ -66,8 +70,8 @@ export const ErrorResponseSchema = z.object({
       ERROR_CODES.RATE_LIMITED,
     ]),
     message: z.string(),
-    details: z.unknown().optional()
-  })
+    details: z.unknown().optional(),
+  }),
 })
 
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
