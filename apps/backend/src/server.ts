@@ -7,6 +7,10 @@ import { config } from "./config.js"
 import { logger } from './logger.js'
 import { healthRouter } from './routes/health.js'
 
+/**
+ * Builds and returns a configured Express app without starting it.
+ * Factory pattern keeps the app testable with Supertest (no port binding).
+ */
 export function createServer(): Express {
   const app = express()
 
