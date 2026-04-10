@@ -14,4 +14,5 @@ if (!parsed.success) {
   process.exit(1)
 }
 
+/** Validated, typed runtime configuration. The process exits on startup if any required env var is missing or invalid. */
 export const config = parsed.data

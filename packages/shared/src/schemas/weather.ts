@@ -2,6 +2,7 @@ import * as z from 'zod'
 
 // Request
 
+/** Query schema for `GET /api/weather`. Used by both the backend route and the frontend search form. */
 export const WeatherQuerySchema = z.object({
   city: z.string().trim().min(1, 'City is required').max(100, 'City name is too long')
 })
@@ -30,6 +31,7 @@ export const CurrentWeatherSchema = z.object({
   observedAt: z.string(),
 })
 
+/** Normalized success response for `GET /api/weather`. Upstream Open-Meteo payloads are mapped to this shape. */
 export const WeatherResponseSchema = z.object({
   data: z.object({
     location: LocationSchema,
@@ -53,6 +55,7 @@ export const ERROR_CODES = {
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
 
+/** Uniform error envelope returned by all backend routes on failure. */
 export const ErrorResponseSchema = z.object({
   error: z.object({
     code: z.enum([
