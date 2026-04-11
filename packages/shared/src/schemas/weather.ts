@@ -30,7 +30,6 @@ export const CurrentWeatherSchema = z.object({
   humidity: z.number(),
   windSpeed: z.number(),
   windDirection: z.number(),
-  weatherCode: z.number(),
   condition: z.string(),
   observedAt: z.string(),
 })

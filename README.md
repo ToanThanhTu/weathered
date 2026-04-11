@@ -26,6 +26,13 @@ pnpm -r dev
 
 Backend will be available at `http://localhost:3000`.
 
+## Backend endpoints
+
+| Method | Path                         | Description                                             |
+| ------ | ---------------------------- | ------------------------------------------------------- |
+| `GET`  | `/api/health`                | Liveness probe — returns `{ status, uptime, timestamp }` |
+| `GET`  | `/api/weather?city=<string>` | Geocode a city and return normalized current weather    |
+
 ## Project structure
 
 ```

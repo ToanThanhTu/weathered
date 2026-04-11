@@ -1,6 +1,12 @@
+import net from 'node:net'
+
 import { config } from './config.js'
 import { logger } from './logger.js'
 import { createServer } from './server.js'
+
+// Disable Node's Happy Eyeballs timeout
+// Default timeout 250ms is too short for Open-Meteo's IPv4 endpoint
+net.setDefaultAutoSelectFamily(false)
 
 const app = createServer()
 
