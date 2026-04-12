@@ -9,6 +9,7 @@ For scope-specific rules, see the nested CLAUDE.md files:
 - [`apps/backend/src/routes/CLAUDE.md`](apps/backend/src/routes/CLAUDE.md) — HTTP route handlers
 - [`apps/backend/src/middleware/CLAUDE.md`](apps/backend/src/middleware/CLAUDE.md) — error handler + cross-cutting concerns
 - [`apps/backend/src/errors/CLAUDE.md`](apps/backend/src/errors/CLAUDE.md) — typed error hierarchy
+- [`apps/frontend/CLAUDE.md`](apps/frontend/CLAUDE.md) — frontend app patterns
 - [`packages/shared/CLAUDE.md`](packages/shared/CLAUDE.md) — shared Zod schemas
 
 ## Project context

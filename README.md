@@ -7,7 +7,7 @@ Full-stack weather app consuming the public [Open-Meteo](https://open-meteo.com/
 ## Stack
 
 - **Monorepo:** pnpm workspaces
-- **Frontend:** React 19 + Vite 8 + TypeScript 6 + Tailwind v4 + shadcn/ui _(pending)_
+- **Frontend:** React 19 + Vite 8 + TypeScript 6 + Tailwind v4 + shadcn/ui + TanStack Query
 - **Backend:** Express 5 + TypeScript 6 + Zod 4 + pino
 - **Shared:** Zod schemas + inferred types in `packages/shared`
 
@@ -24,7 +24,7 @@ cp apps/backend/.env.example apps/backend/.env
 pnpm -r dev
 ```
 
-Backend will be available at `http://localhost:3000`.
+Backend: `http://localhost:3000` · Frontend: `http://localhost:5173`
 
 ## Backend endpoints
 
@@ -39,7 +39,7 @@ Backend will be available at `http://localhost:3000`.
 weathered/
 ├── apps/
 │   ├── backend/        # Express 5 API
-│   └── frontend/       # React 19 SPA (pending)
+│   └── frontend/       # React 19 SPA
 ├── packages/
 │   └── shared/         # Shared Zod schemas + types
 └── docs/               # Assignment brief + implementation plan
