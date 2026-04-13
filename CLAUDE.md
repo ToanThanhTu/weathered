@@ -101,20 +101,35 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 
 | File                  | Purpose                                                                                  |
 | --------------------- | ---------------------------------------------------------------------------------------- |
-| `package.json`        | Workspace root. `private: true`, `type: module`, recursive scripts (`pnpm -r <cmd>`).    |
+| `package.json`        | Workspace root. `private: true`, `type: module`, recursive scripts (`pnpm -r <cmd>`). The `dev` script chains `pnpm -r build && pnpm -r --parallel dev` so `packages/shared/dist` exists before backend/frontend dev servers start. |
 | `pnpm-workspace.yaml` | Declares `apps/*` and `packages/*` as workspaces.                                        |
 | `tsconfig.base.json`  | Strict settings, `NodeNext`, `noUncheckedIndexedAccess`, `declaration: true` (apps override to `false`). |
 | `eslint.config.js`    | Flat config via `defineConfig` from `eslint/config`. `strictTypeChecked` preset active.  |
 | `.prettierrc`         | `semi: false`, `singleQuote: true`, `trailingComma: 'all'`, `printWidth: 80`.            |
 | `.nvmrc`              | `24` — picked up by `nvm use`, Vercel, Koyeb.                                            |
+| `.npmrc`              | `force-legacy-deploy=true` — `pnpm deploy` uses pre-pnpm-10 behaviour (workspace deps copied as-is, no injection). Required for the Docker build. |
+| `.dockerignore`       | Excludes `node_modules`, `.git`, `dist`, real `.env` files from the Docker build context. Keeps `.env.example` and `.env.test` available. |
+| `docker-compose.yml`  | Two services: `backend` (Node 24 alpine), `frontend` (nginx alpine). Frontend depends on backend healthcheck. |
 | `docs/Weathered-plan.md` | Full implementation plan. Read first for architecture, schedule, talking points.     |
 
 ## Running locally
 
+### Option A — pnpm (dev)
+
 ```sh
 pnpm install
 cp apps/backend/.env.example apps/backend/.env
-pnpm -r dev
+pnpm dev
 ```
 
-Backend: `http://localhost:3000` · Frontend: `http://localhost:5173` _(pending)_
+The root `dev` script runs `pnpm -r build` first (compiles `packages/shared` to `dist/`) then `pnpm -r --parallel dev` (backend `tsx watch`, frontend `vite`, shared `tsc --watch`).
+
+Backend: `http://localhost:3000` · Frontend: `http://localhost:5173`
+
+### Option B — Docker (production-like)
+
+```sh
+docker compose up --build
+```
+
+Frontend at `http://localhost`, backend at `http://localhost:3000`. Frontend container is nginx serving the Vite build, with `/api/*` proxied to the backend container via the Docker Compose service network.

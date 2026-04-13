@@ -71,6 +71,43 @@ src/
 - Plugin order matters: `tailwindcss()` → `react()` → `babel({ presets: [reactCompilerPreset()] })`.
 - `@tailwindcss/vite` resolves CSS before React plugin processes JSX.
 
+## Dockerfile + nginx
+
+[`Dockerfile`](Dockerfile) is a multi-stage build:
+
+1. **Builder stage** (`node:24-alpine AS builder`):
+   - `npm i -g pnpm`
+   - `COPY` workspace root files + `packages/shared` + `apps/frontend`
+   - `RUN pnpm install --frozen-lockfile`
+   - `RUN pnpm -r build` — topological build, shared then frontend. Vite emits the SPA bundle to `apps/frontend/dist/`.
+
+2. **Runner stage** (`nginx:alpine`):
+   - `COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html/` — Vite output becomes nginx's docroot
+   - `COPY apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf` — replaces nginx's default site config
+   - No `CMD` — nginx alpine has the right one baked in
+
+### `nginx.conf`
+
+[`nginx.conf`](nginx.conf) does two things:
+
+```nginx
+location /api/ {
+  proxy_pass http://backend:3000;
+  ...
+}
+
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+- **`/api/*` → `backend:3000`**: `backend` resolves to the Docker Compose service name on the internal network. This replaces the Vite dev proxy in production. Same-origin from the browser's perspective — no CORS preflight ever fires.
+- **SPA fallback** (`try_files ... /index.html`): defensive — the app currently has one route, but if a user reloads on `/?city=Sydney`, nginx serves `index.html` and React reads `?city=` from `URLSearchParams`.
+
+### Why the frontend doesn't use `pnpm deploy`
+
+The frontend's runtime artifact is **static files** — HTML, CSS, JS in nginx's docroot. There's no Node process at runtime, no `node_modules`, nothing to "deploy" in the pnpm sense. The builder just needs to produce `dist/`; the runner copies those files into nginx and that's it.
+
 ## Testing setup
 
 Tests use Vitest + React Testing Library + jsdom. Test files colocate with the components they cover (`components/main/WeatherPanel.test.tsx`).

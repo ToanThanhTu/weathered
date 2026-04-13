@@ -60,5 +60,12 @@ Single file containing every schema shared across the weather feature. Current e
 
 ## Build
 
-- No compilation step. The package's `exports` field in `package.json` points directly at `src/index.ts`; consumers resolve the `.ts` source through `moduleResolution: NodeNext`. The only script is `typecheck` (`tsc --noEmit`).
-- `typescript` is a dev dep of this package so `pnpm -r typecheck` works without leaning on a hoisted root binary.
+- **`tsc` compiles `src/` to `dist/`.** The `exports` field points at `./dist/index.js` and `./dist/index.d.ts`. Both consumers (backend at runtime via plain `node`, frontend via Vite) read the compiled output.
+- **`files: ["dist"]`** in `package.json` is critical — without it, `pnpm deploy` falls back to `.gitignore`, which excludes `dist/` and ships an empty package into the production container. The `files` field overrides the gitignore for deploy artifacts.
+- **Why a build step is needed at all:** Node 24 deliberately refuses to apply native type stripping to files under `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`). Workspace packages always end up under `node_modules/` after `pnpm deploy`, so the type-stripping path is permanently closed for production containers. The earlier "no build step" approach worked in dev only because `tsx` falls back from `.js` requests to `.ts` files; plain `node` has no such fallback.
+- **Scripts:**
+  - `build` — `tsc`. Emits `dist/index.js`, `dist/index.d.ts`, and source maps.
+  - `dev` — `tsc --watch`. Run by the root `pnpm dev` script in parallel with backend/frontend dev servers.
+  - `typecheck` — `tsc --noEmit`. Run by CI and by `pnpm -r typecheck` from the root.
+- **Dev workflow:** the root `dev` script chains `pnpm -r build && pnpm -r --parallel dev`. The build step runs once synchronously so `dist/index.js` exists before backend `tsx watch` and frontend Vite start. Subsequent shared edits hot-reload via `tsc --watch`.
+- `typescript` is a dev dep of this package so `pnpm -r typecheck` and `pnpm -r build` work without leaning on a hoisted root binary.

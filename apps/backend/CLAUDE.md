@@ -88,6 +88,37 @@ Tests use Vitest + Supertest and live alongside the code under test (`routes/wea
 - **Cast error responses to `ErrorResponse`** — we control both ends of the envelope; a full parse in every test is overkill.
 - **Use a different city per test** to avoid the module-scoped LRU cache contaminating state across tests.
 
+## Dockerfile
+
+[`Dockerfile`](Dockerfile) is a multi-stage build:
+
+1. **Builder stage** (`node:24-alpine AS builder`):
+   - `npm i -g pnpm`
+   - `COPY` workspace root files (`package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `tsconfig.base.json`, `.npmrc`)
+   - `COPY` `packages/shared` and `apps/backend` directories (preserving structure — never flatten them)
+   - `RUN pnpm install --frozen-lockfile`
+   - `RUN pnpm -r build` — walks the workspace dep graph in topological order, builds `packages/shared` then `apps/backend`
+   - `RUN pnpm deploy --filter=@weathered/backend --prod /app/deploy` — produces a self-contained directory with the backend's package.json, dist, and a flattened `node_modules` (including the compiled `@weathered/shared`)
+
+2. **Runner stage** (`node:24-alpine`):
+   - `COPY --from=builder /app/deploy ./` — single copy carries everything needed
+   - `USER node` — drops to non-root
+   - `CMD ["node", "dist/index.js"]` — paths inside `/app/deploy` are flat (the deploy directory has the backend at its root, not nested under `apps/backend/`)
+
+### Why this works
+
+- **`pnpm -r build` order:** pnpm walks dependencies first. `packages/shared` builds before `apps/backend` because backend depends on shared via `workspace:*`.
+- **`pnpm deploy` flattens:** the output at `/app/deploy` contains the backend package as if it were a standalone publish — no `apps/backend/` prefix, just `package.json`, `dist/`, `node_modules/` at the root. The runner's CMD path matches.
+- **`force-legacy-deploy=true` in `.npmrc`:** required because pnpm 10's default `pnpm deploy` requires `inject-workspace-packages=true` (which would also break dev hot-reload for shared schemas). Legacy mode preserves the old behaviour where workspace deps are copied without injection.
+- **Shared package's `files: ["dist"]`:** without it, `pnpm deploy` would fall back to `.gitignore` (which excludes `dist/`) and ship an empty `@weathered/shared` package. The `files` field is the override that makes the compiled output visible to the deploy.
+
+### Common pitfalls (lessons from the build)
+
+- `COPY` with multiple sources flattens them all into the destination. Use separate `COPY` lines for each top-level directory to preserve the workspace structure.
+- `tsconfig.base.json` must be COPYed too — the per-package tsconfigs extend it via `../../tsconfig.base.json`. If it's missing, `tsc` exits with `TS5083`.
+- `.npmrc` must be COPYed for `force-legacy-deploy` to take effect in the container.
+- The CMD path is **`dist/index.js`**, not `apps/backend/dist/index.js` — `pnpm deploy` strips the workspace nesting.
+
 ## ESLint notes
 
 - `pino-http`'s return type confuses `no-unsafe-argument`. Narrow via an explicit `RequestHandler` annotation rather than suppressing the rule.

@@ -20,13 +20,25 @@ Full-stack weather app consuming the public [Open-Meteo](https://open-meteo.com/
 
 ## Getting started
 
+### Option A — pnpm (dev)
+
 ```sh
 pnpm install
 cp apps/backend/.env.example apps/backend/.env
-pnpm -r dev
+pnpm dev
 ```
 
 Backend: `http://localhost:3000` · Frontend: `http://localhost:5173`
+
+The `dev` script chains `pnpm -r build && pnpm -r --parallel dev` — `packages/shared` compiles once, then backend (`tsx watch`), frontend (`vite`), and shared (`tsc --watch`) run in parallel.
+
+### Option B — Docker (production-like, one command)
+
+```sh
+docker compose up --build
+```
+
+Frontend at `http://localhost` (nginx), backend at `http://localhost:3000`. nginx proxies `/api/*` to the backend container via the Docker Compose service network — same-origin from the browser.
 
 ## Backend endpoints
 
