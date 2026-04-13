@@ -1,8 +1,8 @@
 import eslint from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
-import { defineConfig } from 'eslint/config'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
@@ -33,6 +33,13 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['apps/frontend/src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
   {
     ignores: ['**/dist/', '**/node_modules/', '**/*.js', '**/*.mjs'],
   },
