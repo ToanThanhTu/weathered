@@ -4,12 +4,17 @@ Project-wide guidance for Claude Code sessions in the `weathered` repo.
 
 For scope-specific rules, see the nested CLAUDE.md files:
 
-- [`apps/backend/CLAUDE.md`](apps/backend/CLAUDE.md) — backend app patterns
-- [`apps/backend/src/services/CLAUDE.md`](apps/backend/src/services/CLAUDE.md) — upstream clients + orchestration
+- [`apps/backend/CLAUDE.md`](apps/backend/CLAUDE.md) — backend app patterns + testing setup
 - [`apps/backend/src/routes/CLAUDE.md`](apps/backend/src/routes/CLAUDE.md) — HTTP route handlers
-- [`apps/backend/src/middleware/CLAUDE.md`](apps/backend/src/middleware/CLAUDE.md) — error handler + cross-cutting concerns
+- [`apps/backend/src/cache/CLAUDE.md`](apps/backend/src/cache/CLAUDE.md) — generic `cached()` HOF + per-domain cache instances
+- [`apps/backend/src/services/CLAUDE.md`](apps/backend/src/services/CLAUDE.md) — upstream clients + orchestration
 - [`apps/backend/src/errors/CLAUDE.md`](apps/backend/src/errors/CLAUDE.md) — typed error hierarchy
-- [`apps/frontend/CLAUDE.md`](apps/frontend/CLAUDE.md) — frontend app patterns
+- [`apps/backend/src/middleware/CLAUDE.md`](apps/backend/src/middleware/CLAUDE.md) — error handler + rate limiter
+- [`apps/frontend/CLAUDE.md`](apps/frontend/CLAUDE.md) — frontend app patterns + testing setup
+- [`apps/frontend/src/components/main/CLAUDE.md`](apps/frontend/src/components/main/CLAUDE.md) — feature components
+- [`apps/frontend/src/components/states/CLAUDE.md`](apps/frontend/src/components/states/CLAUDE.md) — query-driven state components
+- [`apps/frontend/src/hooks/CLAUDE.md`](apps/frontend/src/hooks/CLAUDE.md) — custom React hooks
+- [`apps/frontend/src/lib/CLAUDE.md`](apps/frontend/src/lib/CLAUDE.md) — API client + utilities
 - [`packages/shared/CLAUDE.md`](packages/shared/CLAUDE.md) — shared Zod schemas
 
 ## Project context
@@ -67,6 +72,22 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 
 - Conventional Commits format.
 - `chore(scaffold)` for setup work, `feat(scope)` for user-facing features, `fix(scope)` for bug fixes.
+
+### Testing
+
+- Vitest everywhere. Backend uses Supertest against `createServer()`; frontend uses React Testing Library + jsdom.
+- One meaningful integration test per critical path — do not write tests to inflate coverage.
+- Shared types via `@weathered/shared` are the contract. Happy-path backend tests parse responses with `WeatherResponseSchema` to double as a contract check.
+- Test files colocate with source (`weather.test.ts` beside `weather.ts`). Setup files live in `src/test/`.
+- See each app's CLAUDE.md for writing-test conventions.
+
+### CI
+
+- GitHub Actions: `.github/workflows/ci.yml` runs `lint → typecheck → test` on every push and PR.
+- Three separate steps (not a single chained command) so the GitHub UI shows which check failed at a glance.
+- `concurrency` group cancels superseded runs on the same ref.
+- `pnpm install --frozen-lockfile` — CI refuses out-of-sync lockfiles.
+- Node version comes from `.nvmrc` via `node-version-file`. One source of truth.
 
 ## What not to do
 

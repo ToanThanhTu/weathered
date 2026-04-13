@@ -10,13 +10,7 @@ interface ErrorBoundaryState {
   hasError: boolean
 }
 
-/**
- * App-root error boundary. Catches synchronous render errors in the component
- * tree and shows a recoverable fallback. Async / data-fetching errors are
- * handled separately by TanStack Query's `error` state — this only fires on
- * render failures, which is the one case hooks can't express (no hook
- * equivalent for `componentDidCatch` exists in React 19).
- */
+/** App-root error boundary. Catches synchronous render errors; async/query errors are handled by TanStack Query. */
 export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState

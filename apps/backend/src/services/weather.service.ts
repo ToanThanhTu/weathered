@@ -2,11 +2,7 @@ import type { WeatherResponse } from '@weathered/shared'
 import { fetchForecast, geocode } from './open-meteo.js'
 import { CityNotFoundError } from '../errors/app-error.js'
 
-/**
- * Orchestrates the geocode → forecast → normalize pipeline for a city name.
- * Throws `CityNotFoundError` when the geocoder returns no matches; upstream
- * failures surface as `UpstreamError` from the Open-Meteo client.
- */
+/** Orchestrates geocode → forecast → normalize. Throws `CityNotFoundError` when the geocoder has no match. */
 export async function getWeather(city: string): Promise<WeatherResponse> {
   const geocodeResult = await geocode(city)
 

@@ -1,10 +1,7 @@
 import { RequestHandler } from "express"
 import rateLimit from 'express-rate-limit'
 
-/**
- * Rate limiter for 'api/weather' API
- * 60 requests per minute, prevent DDOS
- */
+/** Per-IP rate limiter for `/api/weather`. 60 requests per minute, IETF draft-8 headers. */
 export const weatherRateLimiter: RequestHandler = rateLimit({
   windowMs: 60 * 1000,
   limit: 60,

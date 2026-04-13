@@ -2,13 +2,7 @@ import type { ErrorRequestHandler } from 'express'
 import { AppError } from '../errors/app-error.js'
 import { ERROR_CODES, ErrorResponse } from '@weathered/shared'
 
-/**
- * Central Express error handler. Logs every error via the request-scoped
- * pino logger and shapes the response as an `ErrorResponse` envelope. Known
- * `AppError`s pass their `statusCode` / `code` / `message` through; anything
- * else becomes a generic 500 `INTERNAL_ERROR` with no internal detail leaked.
- * Must be registered last, after all routes.
- */
+/** Central error handler. Translates `AppError` to its HTTP status and code; unknown errors become a generic 500 with no internal detail leaked. Must be registered last. */
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   req.log.error({ err }, 'Request failed.')
 

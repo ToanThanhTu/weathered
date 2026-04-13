@@ -1,6 +1,8 @@
 # Main components
 
-Feature components that make up the weather search UI. See [`apps/frontend/CLAUDE.md`](../../../CLAUDE.md) for app-level patterns.
+Feature components that make up the weather search UI. See [`apps/frontend/CLAUDE.md`](../../../CLAUDE.md) for app-level patterns, including the testing section.
+
+Test files colocate with the component under test: `WeatherPanel.test.tsx` sits beside `WeatherPanel.tsx`.
 
 ## Files
 
