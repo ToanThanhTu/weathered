@@ -511,35 +511,50 @@ Captures the walkthrough-style checkpoints we followed during Day 1 so future se
 
 **End-of-day check:** CI green. App feels polished. Stretch items land or are cut cleanly.
 
-### Day 4 — Monday 14 April: Polish, README, submit
+### Day 4 — Tuesday 14 April: UI polish, README, submit
 
-**Morning — README (this is evaluated directly — spend real time here)**
+> **Scope change (2026-04-14):** Vercel + Koyeb deployment is **cut** to make room for UI/UX polish, mobile/tablet responsive, RFS branding fonts, and dark mode. README screenshot will be from a local run instead of a live URL. The Definition of Done items related to live deployment are explicitly waived. See §17 Confirmed Decisions.
 
-- [ ] Screenshot or short GIF of the app
-- [ ] Overview + architecture diagram (ASCII is fine)
-- [ ] Tech stack table with **rationale** for each choice
-- [ ] Prerequisites (Node 24, pnpm)
-- [ ] Run instructions — both `pnpm` and `docker compose up`
-- [ ] Env vars (reference `.env.example`)
-- [ ] Project structure
-- [ ] Design decisions & assumptions
-- [ ] Trade-offs and "what I'd do next with more time"
-- [ ] How to run tests
+**Morning — UI/UX polish, responsive, branding (highest visual impact)**
 
-**Afternoon — polish, dark mode, deployment (in this order)**
+- [ ] **RFS fonts** — `font-family: 'Gotham', 'Arial', sans-serif` in Tailwind v4 `@theme`. **Do not commit Gotham font files** (proprietary; Hoefler & Co.). The CSS reference renders Gotham only on machines that have it licensed, falls back to Arial elsewhere. See §17 for rationale.
+- [ ] **Visual polish** — header with branding, layout proportions, spacing, card visual hierarchy, loading skeleton matches real card dimensions, RFS-inspired colour token (orange) in `@theme`
+- [ ] **Responsive breakpoints** — mobile (320 px+), tablet (`sm:` 640 px+), desktop (`md:` 768 px+ and `lg:` 1024 px+). Single-column SPA, larger touch targets on mobile, refined spacing on wider screens.
+- [ ] Verify all four states still render correctly at every breakpoint (empty / loading / error / success)
+- [ ] Browser test in Chrome devtools responsive mode at 320 / 768 / 1024 / 1440 widths
+
+**Afternoon — Dark mode, README, final polish**
+
+- [ ] **Dark mode toggle** (~30 min) — `data-theme` on `<html>`, button in header, persist to `localStorage`. shadcn/ui already uses CSS variables that respect the `dark:` Tailwind variant, so most of the work is the toggle wiring.
+- [ ] **README flesh-out** (this is evaluated directly):
+  - [ ] Screenshot of the polished local app (light + dark, mobile + desktop if you have time)
+  - [ ] Overview + architecture diagram (ASCII is fine)
+  - [ ] Tech stack table with **rationale** for each choice
+  - [ ] Prerequisites (Node 24, pnpm)
+  - [ ] Run instructions — both `pnpm` and `docker compose up` (already done)
+  - [ ] Env vars (reference `.env.example`)
+  - [ ] Project structure
+  - [ ] Design decisions & assumptions
+  - [ ] Trade-offs and "what I'd do next with more time"
+  - [ ] How to run tests
+  - [ ] Note that deployment was descoped (with reason)
+- [ ] Final commit history review — messages should read cleanly
+- [ ] Verify CI still green on final commit
+
+**Already done (carried over from Day 3 / earlier Day 4):**
 
 - [x] `Dockerfile` for `apps/backend` and `apps/frontend` ✅
 - [x] `docker-compose.yml` — one-command run ✅
 - [x] Sweep: remove dead code, TODOs, `console.log`s, unused imports ✅
 - [x] Verify no `any` anywhere (`grep -rn "any" apps packages --include="*.ts"`) ✅
-- [ ] **Dark mode toggle** (shadcn pattern, ~30 min)
-- [ ] **Deploy backend to Koyeb** (see §18)
-- [ ] **Deploy frontend to Vercel** (see §18)
-- [ ] Wire CORS between deployed instances, smoke test live URLs
-- [ ] Add "Live demo" section + live URLs to README
-- [ ] Take README screenshot from the deployed app
-- [ ] Final commit history review — messages should read cleanly
-- [ ] Verify CI still green on final commit
+
+**Cut from scope (was originally Day 4 afternoon):**
+
+- ~~Deploy backend to Koyeb~~ — cut
+- ~~Deploy frontend to Vercel~~ — cut
+- ~~Wire CORS between deployed instances, smoke test live URLs~~ — cut
+- ~~Add "Live demo" section + live URLs to README~~ — cut
+- ~~Take README screenshot from the deployed app~~ — replaced with local screenshot
 
 #### Dockerization checkpoint log (completed 2026-04-13)
 
@@ -822,16 +837,17 @@ Before submitting on Day 4, all of these must be true:
 - [x] `pnpm lint` passes with zero errors ✅
 - [x] `pnpm test` passes with zero failures ✅
 - [x] GitHub Actions CI is green on the latest commit ✅
-- [ ] `grep -rn "any" apps packages --include="*.ts"` returns nothing meaningful
+- [x] `grep -rn "any" apps packages --include="*.ts"` returns nothing meaningful ✅
 - [ ] README has every section from §11
-- [ ] `.env.example` committed; no real `.env` committed
-- [ ] No `console.log` debugging statements
+- [x] `.env.example` committed; no real `.env` committed ✅
+- [x] No `console.log` debugging statements ✅ (two intentional `console.error` calls have why-comments — see Dead-code sweep notes)
 - [ ] Commit history is clean and readable
-- [ ] Repo is **public** on GitHub
+- [x] Repo is **public** on GitHub ✅
+- [ ] **UI polished** — RFS branding, responsive (mobile/tablet/desktop), visual hierarchy
 - [ ] Dark mode toggle works
-- [ ] Frontend deployed to Vercel, live URL in README
-- [ ] Backend deployed to Koyeb, `/api/health` responds
-- [ ] Live end-to-end search works against deployed URLs
+- ~~Frontend deployed to Vercel, live URL in README~~ — **cut from scope 2026-04-14**
+- ~~Backend deployed to Koyeb, `/api/health` responds~~ — **cut from scope 2026-04-14**
+- ~~Live end-to-end search works against deployed URLs~~ — **cut from scope 2026-04-14**
 - [ ] One full walkthrough rehearsal completed
 
 ---
@@ -839,10 +855,15 @@ Before submitting on Day 4, all of these must be true:
 ## 17. Confirmed Decisions
 
 - ✅ **Repo visibility:** Public
-- ✅ **Dark mode:** Include — scheduled last (Day 4 afternoon, after core polish)
-- ✅ **Leaflet map:** Optional stretch only — Day 3 evening if strictly on track
-- ✅ **README media:** Static screenshot (not animated GIF)
-- ✅ **Deployment:** Yes — **Vercel (frontend) + Koyeb (backend)** — scheduled last (Day 4 afternoon)
+- ✅ **Dark mode:** Include — scheduled Day 4 afternoon
+- ✅ **Leaflet map:** Cut. Optional stretch was never reached.
+- ✅ **README media:** Static screenshot from a **local** run (not from a deployed URL — see deployment decision below)
+- ❌ **Deployment (Vercel + Koyeb):** **Cut on 2026-04-14.** Reasoning: Day 4 budget reallocated to UI/UX polish, mobile/tablet responsive, RFS branding fonts, and dark mode — items the panel will see directly during the walkthrough. The brief evaluates the codebase and the README; live URLs are nice-to-have, not rubric-critical. The walkthrough demo will run via `pnpm dev` (or `docker compose up`) on the local machine. README will note this as a deliberate scope decision under Trade-offs.
+- ✅ **RFS fonts (Gotham + Arial) — Option A (CSS reference, no shipped font files):**
+  - `font-family: 'Gotham', 'Arial', sans-serif` declared in Tailwind v4 `@theme`. **No font files are committed to the repo** because Gotham is a commercial typeface owned by Hoefler & Co. — distributing it would be IP infringement.
+  - On RFS-managed machines (where Gotham is licensed and installed), the stack renders Gotham. Everywhere else it falls back to Arial (a system font on every major OS).
+  - This is the legally-defensible path for a public GitHub repo. The walkthrough talking point: *"I reference Gotham in the font stack so RFS reviewers see the brand font, but I deliberately don't ship the font files because Gotham is a commercial Hoefler & Co. typeface. The fallback is Arial — Gotham's traditional system fallback — so non-licensed machines still see a sans-serif close to the intended look."*
+  - Rejected alternatives: shipping `.woff2` files (IP theft), using a Gotham-alike Google Font like Montserrat (more visually consistent for non-RFS reviewers, but adds a dependency and a longer explanation).
 
 ---
 
