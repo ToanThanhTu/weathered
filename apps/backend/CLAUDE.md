@@ -11,12 +11,13 @@ src/
 ├── config.ts             # Zod-validated env; fail-fast on startup
 ├── logger.ts             # shared pino instance
 ├── routes/               # thin HTTP adapters  (→ CLAUDE.md)
+├── cache/                # generic cached() HOF + per-domain instances (→ CLAUDE.md)
 ├── services/             # business logic + upstream clients  (→ CLAUDE.md)
 ├── errors/               # AppError hierarchy  (→ CLAUDE.md)
 └── middleware/           # error handler + cross-cutting  (→ CLAUDE.md)
 ```
 
-Dependency direction is one-way: `routes → services → upstream clients`. Services never import from routes; upstream clients never import from services.
+Dependency direction is one-way: `routes → cache → services → upstream clients`. Services never import from routes; upstream clients never import from services.
 
 ## Files in `src/`
 
@@ -36,9 +37,10 @@ Dependency direction is one-way: `routes → services → upstream clients`. Ser
   2. `cors({ origin: config.ALLOWED_ORIGIN })` — explicit allowlist, never `*`
   3. `express.json()` — body parser
   4. `pinoHttp({ genReqId })` — generates or passes through `x-request-id`, attaches `req.log` child logger
-  5. Route routers — `/api/health`, `/api/weather`
-  6. `errorHandler` — **must be last**; see [`src/middleware/CLAUDE.md`](src/middleware/CLAUDE.md)
-- Adding a new route = add the router in [`routes/`](src/routes/) and register it here **before** the error handler.
+  5. `weatherRateLimiter` path-scoped to `/api/weather` — bypasses `/api/health` so infrastructure probes are never throttled
+  6. Route routers — `/api/health`, `/api/weather`
+  7. `errorHandler` — **must be last**; see [`src/middleware/CLAUDE.md`](src/middleware/CLAUDE.md)
+- Adding a new route = add the router in [`routes/`](src/routes/) and register it here **before** the error handler. If the route needs throttling, mount a rate limiter at the same path **before** the route, not inside the handler.
 
 ### `config.ts` — env loader
 

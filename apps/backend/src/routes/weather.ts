@@ -3,8 +3,8 @@ import * as z from 'zod'
 
 import { WeatherQuerySchema } from '@weathered/shared'
 
+import { getCachedWeather } from '../cache/weather.cache.js'
 import { ValidationError } from '../errors/app-error.js'
-import { getWeather } from '../services/weather.service.js'
 
 /**
  * `GET /api/weather` — validates `?city=` with the shared Zod schema and
@@ -24,7 +24,7 @@ weatherRouter.get('/', async (req, res) => {
     )
   }
 
-  const result = await getWeather(parsedQuery.data.city)
+  const result = await getCachedWeather(parsedQuery.data.city)
 
   res.json(result)
 })

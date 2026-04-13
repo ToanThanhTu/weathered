@@ -11,11 +11,12 @@ React 19 + Vite 8 + TypeScript 6 + Tailwind v4 + shadcn/ui (Radix) + TanStack Qu
 ```
 src/
 ├── App.tsx                    # root component, URL sync, city state
-├── main.tsx                   # entrypoint, QueryClientProvider
+├── main.tsx                   # entrypoint, ErrorBoundary + QueryClientProvider
 ├── app.css                    # Tailwind v4 @import + @theme
 ├── components/
+│   ├── ErrorBoundary.tsx      # app-root render error fallback (class component)
 │   ├── main/                  # feature components  (→ CLAUDE.md)
-│   ├── states/                # loading / error / empty states  (→ CLAUDE.md)
+│   ├── states/                # query-driven loading / error / empty states  (→ CLAUDE.md)
 │   └── ui/                    # shadcn/ui generated (owned, editable)
 ├── hooks/                     # custom hooks  (→ CLAUDE.md)
 └── lib/                       # utilities + API client  (→ CLAUDE.md)
@@ -32,9 +33,17 @@ src/
 
 ### `main.tsx` — entrypoint
 
-- Wraps `<App />` in `<StrictMode>` and `<QueryClientProvider>`.
+- Wraps `<App />` in `<StrictMode>`, `<ErrorBoundary>`, and `<QueryClientProvider>`, in that order (outer to inner).
+- `ErrorBoundary` **must** be outside `QueryClientProvider` — if the provider itself throws during setup, only an outer boundary catches it.
 - Imports `app.css` (Tailwind entry point).
 - No `.tsx` extension on imports — Vite resolves without it.
+
+### `components/ErrorBoundary.tsx` — render error fallback
+
+- The one place in the codebase that's a **class component**. React 19 still has no hook equivalent for `componentDidCatch` / `getDerivedStateFromError`; the API has never been replaced.
+- Catches **synchronous render errors** only. Async errors from event handlers and data fetching are not caught here — TanStack Query's `error` state handles the latter.
+- Renders a shadcn `<Alert variant="destructive">` with Reload / Dismiss actions. Reload does a full `window.location.reload()`; Dismiss resets `hasError` and retries the render (useful if the error was transient).
+- Kept at `components/` root, not inside `main/` or `states/` — it's an app-structural concern, not a feature component or a query-driven state.
 
 ### `app.css` — Tailwind v4 theme
 

@@ -24,12 +24,22 @@ weatherRouter.get('/', async (req, res) => {
   if (!parsed.success) {
     throw new ValidationError('Invalid query', z.treeifyError(parsed.error))
   }
-  const result = await getWeather(parsed.data.city)
+  const result = await getCachedWeather(parsed.data.city)
   res.json(result)
 })
 ```
 
 This is the single biggest reason we're on Express 5. Don't reintroduce try/catch or an `asyncHandler` wrapper.
+
+### Import the cached facade, not the raw service
+
+Routes import from [`cache/`](../cache/), **not** directly from [`services/`](../services/). The cache layer wraps the service with LRU + TTL + single-flight; calling the service directly would bypass all of that. Current mapping:
+
+| Route                | Import                                                     |
+| -------------------- | ---------------------------------------------------------- |
+| `weatherRouter`      | `getCachedWeather` from `../cache/weather.cache.js`        |
+
+New cached endpoints follow the same pattern: add a `*.cache.ts` file under [`cache/`](../cache/), export a `getCached*` function, import from here.
 
 ### Input validation
 
