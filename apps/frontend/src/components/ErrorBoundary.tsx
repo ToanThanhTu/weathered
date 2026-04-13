@@ -25,6 +25,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    // console (not a logger), frontend has no pino, this is React's standard error-boundary reporting
     console.error('ErrorBoundary caught:', error, errorInfo.componentStack)
   }
 

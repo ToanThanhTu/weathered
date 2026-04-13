@@ -528,10 +528,10 @@ Captures the walkthrough-style checkpoints we followed during Day 1 so future se
 
 **Afternoon — polish, dark mode, deployment (in this order)**
 
-- [ ] `Dockerfile` for `apps/backend` and `apps/frontend`
-- [ ] `docker-compose.yml` — one-command run
-- [ ] Sweep: remove dead code, TODOs, `console.log`s, unused imports
-- [ ] Verify no `any` anywhere (`grep -rn "any" apps packages --include="*.ts"`)
+- [x] `Dockerfile` for `apps/backend` and `apps/frontend` ✅
+- [x] `docker-compose.yml` — one-command run ✅
+- [x] Sweep: remove dead code, TODOs, `console.log`s, unused imports ✅
+- [x] Verify no `any` anywhere (`grep -rn "any" apps packages --include="*.ts"`) ✅
 - [ ] **Dark mode toggle** (shadcn pattern, ~30 min)
 - [ ] **Deploy backend to Koyeb** (see §18)
 - [ ] **Deploy frontend to Vercel** (see §18)
@@ -540,6 +540,39 @@ Captures the walkthrough-style checkpoints we followed during Day 1 so future se
 - [ ] Take README screenshot from the deployed app
 - [ ] Final commit history review — messages should read cleanly
 - [ ] Verify CI still green on final commit
+
+#### Dockerization checkpoint log (completed 2026-04-13)
+
+| #   | Step                                                | Status | Notes                                                                                                                                                            |
+| --- | --------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | `.dockerignore` at repo root                        | ✅     | Excludes `node_modules`, `.git`, real `.env`, `dist`. Keeps `.env.example` and `.env.test`.                                                                       |
+| D2  | `apps/backend/Dockerfile` multi-stage               | ✅     | Builder: pnpm install → `pnpm -r build` → `pnpm deploy --filter=@weathered/backend --prod /app/deploy`. Runner: `node:24-alpine`, single COPY, `USER node`, `node dist/index.js`. |
+| D3  | `apps/frontend/Dockerfile` multi-stage              | ✅     | Builder: same pattern, ends at `pnpm -r build` (Vite emits to `dist/`). Runner: `nginx:alpine`, copies `dist` to docroot, replaces `default.conf`.                 |
+| D4  | `apps/frontend/nginx.conf`                          | ✅     | `proxy_pass http://backend:3000` (Compose service-name DNS) + `try_files ... /index.html` SPA fallback.                                                           |
+| D5  | `docker-compose.yml`                                | ✅     | Backend with healthcheck, frontend `depends_on: { backend: { condition: service_healthy } }`. Same-origin via nginx proxy — no CORS preflight in the prod path.   |
+| D6  | `.npmrc` with `force-legacy-deploy=true`            | ✅     | Required by pnpm 10's new `pnpm deploy` default. Legacy mode preserves dev hot reload via symlinks.                                                                |
+| D7  | `packages/shared` build step                        | ✅     | `tsc` emits `dist/index.js` + `dist/index.d.ts`. `package.json` adds `files: ["dist"]` (overrides `.gitignore` for `pnpm deploy`) and `exports` points at `./dist/index.js`. |
+| D8  | Root `dev` script chains build + parallel watch    | ✅     | `pnpm -r build && pnpm -r --parallel dev` — synchronous build once so `tsx watch` and `vite` find `dist/index.js` on first start. Subsequent shared edits hot-reload via `tsc --watch`. |
+| D9  | `docker compose up` end-to-end smoke test           | ✅     | All 11 verification steps from the Docker plan passed. Frontend on `:80`, backend direct on `:3000`, health/weather/not-found/validation/rate-limit all green.    |
+
+#### Lessons learned (Dockerization)
+
+- **`COPY a b c /dest/`** flattens all sources into `/dest`, destroying workspace structure. Use one COPY per top-level directory.
+- **`tsconfig.base.json` must be COPYed** — per-package tsconfigs extend `../../tsconfig.base.json`. Forgetting it makes `tsc` exit with `TS5083`.
+- **Node 24 type stripping is disabled under `node_modules`** (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`). The "no build step for shared" trick works in dev (via tsx fallback) but is permanently closed for production containers. Shared must compile to dist.
+- **`pnpm deploy` file inclusion priority:** `files` field → `.npmignore` → `.gitignore` → everything. Without `files: ["dist"]`, `dist/` is excluded by gitignore and the deploy ships an empty package.
+- **`pnpm deploy` flattens** — output at `/app/deploy` has no `apps/backend/` prefix; the CMD path is just `dist/index.js`.
+- **pnpm 10's `pnpm deploy` requires `inject-workspace-packages=true` by default**, which kills dev hot reload (every shared edit needs a `pnpm install` to re-copy). `force-legacy-deploy=true` in `.npmrc` reverts to the symlink-friendly behaviour.
+
+#### Dead-code sweep notes (2026-04-13)
+
+- **No `any` anywhere** — `strictTypeChecked` ESLint preset has held throughout. Verified with grep.
+- **No TODO / FIXME / HACK / XXX comments** in committed code.
+- **No skipped tests** (`it.skip`, `xit`, `.only`).
+- **Two intentional `console.error` calls** survive the sweep, both with explanatory why-comments:
+  - [`config.ts`](../apps/backend/src/config.ts) line 17 — runs **before** pino is initialised (pino reads from `config.ts`, so config can't log via pino during its own startup error).
+  - [`ErrorBoundary.tsx`](../apps/frontend/src/components/ErrorBoundary.tsx) line 28 — frontend has no pino; `console.error` in `componentDidCatch` is React's standard error-boundary reporting pattern.
+- One commented-out boundary test (`// if (city === 'throw error') throw new Error('boundary test')`) removed from `App.tsx`.
 
 **Evening — rehearsal & submit**
 
@@ -778,17 +811,17 @@ A **tight, polished small app** beats a sprawling half-finished one on every rub
 
 Before submitting on Day 4, all of these must be true:
 
-- [ ] App runs with `pnpm dev` from a clean `pnpm install`
-- [ ] App runs with `docker compose up`
-- [ ] Searching "Sydney" shows current weather
-- [ ] Searching "Zzznotreal" shows a clear "city not found" state
-- [ ] Empty search is blocked client-side with a validation message
-- [ ] Loading skeleton appears during fetch
-- [ ] URL updates with `?city=` and page reload preserves the search
-- [ ] `pnpm typecheck` passes with zero errors
-- [ ] `pnpm lint` passes with zero errors
-- [ ] `pnpm test` passes with zero failures
-- [ ] GitHub Actions CI is green on the latest commit
+- [x] App runs with `pnpm dev` from a clean `pnpm install` ✅
+- [x] App runs with `docker compose up` ✅
+- [x] Searching "Sydney" shows current weather ✅
+- [x] Searching "Zzznotreal" shows a clear "city not found" state ✅
+- [x] Empty search is blocked client-side with a validation message ✅
+- [x] Loading skeleton appears during fetch ✅
+- [x] URL updates with `?city=` and page reload preserves the search ✅
+- [x] `pnpm typecheck` passes with zero errors ✅
+- [x] `pnpm lint` passes with zero errors ✅
+- [x] `pnpm test` passes with zero failures ✅
+- [x] GitHub Actions CI is green on the latest commit ✅
 - [ ] `grep -rn "any" apps packages --include="*.ts"` returns nothing meaningful
 - [ ] README has every section from §11
 - [ ] `.env.example` committed; no real `.env` committed

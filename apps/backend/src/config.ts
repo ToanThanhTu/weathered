@@ -14,6 +14,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env)
 
 if (!parsed.success) {
+  // console (not pino) - pino itself depends on this config, can't log via it before it loads
   console.error('Invalid environment variables:', z.treeifyError(parsed.error))
   process.exit(1)
 }
