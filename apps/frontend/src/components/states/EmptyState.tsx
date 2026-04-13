@@ -10,9 +10,11 @@ export function EmptyState() {
   return (
     <Card className="mt-6 text-center">
       <CardHeader>
-        <CardTitle>Welcome to Weathered</CardTitle>
+        <CardTitle>
+          <h2>Welcome to Weathered</h2>
+        </CardTitle>
         <CardDescription>
-          Search for a city to see its current weather conditions.
+          <p>Search for a city to see its current weather conditions.</p>
         </CardDescription>
       </CardHeader>
       <CardContent>

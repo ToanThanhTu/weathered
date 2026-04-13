@@ -10,10 +10,7 @@ import { weatherRouter } from './routes/weather.js'
 import { errorHandler } from './middleware/error-handler.js'
 import { weatherRateLimiter } from './middleware/rate-limit.js'
 
-/**
- * Builds and returns a configured Express app without starting it.
- * Factory pattern keeps the app testable with Supertest (no port binding).
- */
+/** Builds and returns a configured Express app without starting it. Testable with Supertest. */
 export function createServer(): Express {
   const app = express()
 

@@ -6,12 +6,7 @@ import { WeatherQuerySchema } from '@weathered/shared'
 import { getCachedWeather } from '../cache/weather.cache.js'
 import { ValidationError } from '../errors/app-error.js'
 
-/**
- * `GET /api/weather` — validates `?city=` with the shared Zod schema and
- * returns the normalized `WeatherResponse`. Throws `ValidationError` on bad
- * input; service-layer errors (`CityNotFoundError`, `UpstreamError`) bubble
- * up to the central error handler via Express 5's async error propagation.
- */
+/** `GET /api/weather` — validates `?city=` and returns a normalized `WeatherResponse`. Typed errors bubble to the central handler. */
 export const weatherRouter: Router = Router()
 
 weatherRouter.get('/', async (req, res) => {

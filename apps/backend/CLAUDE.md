@@ -58,6 +58,36 @@ Dependency direction is one-way: `routes → cache → services → upstream cli
 - Always structured form: `logger.info({ key: value }, 'message')`. Never string-interpolate data into the message — it breaks JSON parsing.
 - Never `console.log` / `console.error` in committed code.
 
+## Testing setup
+
+Tests use Vitest + Supertest and live alongside the code under test (`routes/weather.test.ts` sits beside `routes/weather.ts`).
+
+### `vitest.config.ts`
+
+- `environment: 'node'` — no jsdom; the backend has no browser APIs.
+- `globals: false` — forces explicit `import { describe, it, expect } from 'vitest'`.
+- `setupFiles: ['./src/test/setup.ts']` — runs **before** any test file is imported, so `config.ts`'s env validation sees the test vars.
+
+### `src/test/setup.ts`
+
+- One line: calls `loadEnvFile()` from `node:process` against `../../.env.test`.
+- Must run before `config.ts` is imported. Vitest guarantees setup files run first. **Do not** try to load `.env.test` inline in test files — `createServer()` imports `config.ts` transitively, which validates env at module load.
+
+### `.env.test`
+
+- Committed (contains no secrets).
+- `PORT=3001` (not `0`) — `config.ts` schema requires `.positive()`.
+- `LOG_LEVEL=fatal` — quietest level the Zod enum accepts. Keeps test output clean.
+
+### Writing backend tests
+
+- **Use Supertest against `createServer()`.** Factory pattern pays off here — each test gets a fresh app instance, no port binding.
+- **Mock `fetch` via `vi.stubGlobal('fetch', vi.fn())`.** Reset with `vi.unstubAllGlobals()` in `afterEach`.
+- **Queue multiple `mockResolvedValueOnce` calls** when the code under test makes multiple `fetch` calls in sequence (e.g., the happy-path weather flow: geocode then forecast). Plain `mockResolvedValue` would return the same payload to both calls and the second schema parse would fail.
+- **Parse success responses with the shared Zod schema** (`WeatherResponseSchema.parse(res.body)`) — doubles as a contract test against `@weathered/shared`.
+- **Cast error responses to `ErrorResponse`** — we control both ends of the envelope; a full parse in every test is overkill.
+- **Use a different city per test** to avoid the module-scoped LRU cache contaminating state across tests.
+
 ## ESLint notes
 
 - `pino-http`'s return type confuses `no-unsafe-argument`. Narrow via an explicit `RequestHandler` annotation rather than suppressing the rule.

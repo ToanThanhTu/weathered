@@ -70,3 +70,32 @@ src/
 - Dev proxy: `/api` → `http://localhost:3000`. Frontend calls `/api/...` with relative paths — no base URL.
 - Plugin order matters: `tailwindcss()` → `react()` → `babel({ presets: [reactCompilerPreset()] })`.
 - `@tailwindcss/vite` resolves CSS before React plugin processes JSX.
+
+## Testing setup
+
+Tests use Vitest + React Testing Library + jsdom. Test files colocate with the components they cover (`components/main/WeatherPanel.test.tsx`).
+
+### `vitest.config.ts`
+
+- `environment: 'jsdom'` — provides `window`, `document`, `localStorage` for React to render into.
+- `plugins: [react()]` — Vitest doesn't inherit Vite plugins; must declare here for JSX/TSX support.
+- `resolve.alias` duplicates the `@` alias from `vite.config.ts` — Vitest uses its own resolver.
+- React Compiler is **not** applied to tests (only `vite.config.ts` has the babel preset). The compiler is an optimization, not a semantic change — tests exercise the same code paths.
+
+### `src/test/setup.ts`
+
+- Imports `@testing-library/jest-dom/vitest` — extends Vitest's `expect` with matchers like `toBeInTheDocument()`.
+
+### `src/test/render.tsx`
+
+- Exports `renderWithQuery(ui)` — renders a component wrapped in a **fresh** `QueryClientProvider` with `retry: false`.
+- Fresh client per test matters: the app's real `queryClient` has `retry: 1`, and error-state tests would otherwise wait for one retry cycle before surfacing the error (slow + flaky).
+- No query cache leaks across tests because each render gets its own isolated client.
+
+### Writing frontend tests
+
+- **Query by role and text** (`getByRole`, `getByText`) — never `getByTestId`. RTL queries double as accessibility checks.
+- **Mock `fetch` globally** via `vi.stubGlobal('fetch', vi.fn())` + `vi.unstubAllGlobals()` in `afterEach`. We deliberately avoid MSW for ~4 tests; if the count grows, MSW is the next step.
+- **Loading state** uses `new Promise(() => {})` — a promise that never resolves. TanStack Query stays in `isLoading: true` for the test's lifetime; no need to time the assertion between start and resolution.
+- **Skeleton query** uses `container.querySelector('[data-slot="skeleton"]')`. The skeleton has no accessible text (correct — screen readers shouldn't announce "loading loading loading"), so we query the shadcn-generated attribute directly. This is the one escape hatch from the "query by role" rule.
+- **Async assertions** (success, error) use `await waitFor(() => expect(...))`. Sync assertions (empty, loading) render before the microtask queue drains.

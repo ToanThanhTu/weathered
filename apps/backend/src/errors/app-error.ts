@@ -1,10 +1,6 @@
 import { ERROR_CODES, type ErrorCode } from '@weathered/shared'
 
-/**
- * Base class for all expected application errors. The central error handler
- * translates any thrown `AppError` into its `statusCode` + `ErrorResponse`
- * envelope; anything else falls through to a generic 500 `INTERNAL_ERROR`.
- */
+/** Base class for all expected application errors. The central error handler translates any `AppError` into its `statusCode` + `ErrorResponse` envelope. */
 export class AppError extends Error {
   constructor(
     public readonly statusCode: number,

@@ -1,6 +1,14 @@
 # Routes
 
-HTTP adapter layer. Route files are thin — they validate input, call a service, and send JSON. See [`apps/backend/CLAUDE.md`](../../CLAUDE.md) for app-level patterns.
+HTTP adapter layer. Route files are thin — they validate input, call a service, and send JSON. See [`apps/backend/CLAUDE.md`](../../CLAUDE.md) for app-level patterns, including the testing section.
+
+## Files
+
+| File                | Purpose                                                            |
+| ------------------- | ------------------------------------------------------------------ |
+| `health.ts`         | `GET /api/health` — liveness probe                                 |
+| `weather.ts`        | `GET /api/weather` — cached weather lookup                         |
+| `weather.test.ts`   | Supertest integration tests colocated with the route under test    |
 
 ## Rules
 

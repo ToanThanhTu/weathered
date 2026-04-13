@@ -1,9 +1,4 @@
-/**
- * Open-Meteo HTTP client. The only module in the backend that knows upstream
- * URLs and upstream JSON shapes. Private Zod schemas validate responses at the
- * trust boundary; any failure (non-2xx, timeout, network, schema mismatch) is
- * collapsed into `UpstreamError` by `fetchJson` so callers only see typed results.
- */
+/** Open-Meteo HTTP client. Private Zod schemas validate responses at the trust boundary; all failures collapse into `UpstreamError`. */
 
 import * as z from 'zod'
 import { AppError, UpstreamError } from '../errors/app-error.js'
@@ -39,11 +34,7 @@ const GeocodeResponseSchema = z.object({
 
 type GeocodeResult = z.infer<typeof GeocodeResultSchema>
 
-/**
- * Fetches a URL, enforces a 5-second timeout, and validates the JSON body
- * against the supplied Zod schema. All failure modes are rethrown as
- * `UpstreamError`; pre-existing `AppError`s pass through unchanged.
- */
+/** Fetches + 5s timeout + schema-parses. All failures become `UpstreamError`; pre-existing `AppError`s pass through. */
 async function fetchJson<T>(url: URL, schema: z.ZodType<T>): Promise<T> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
@@ -72,11 +63,7 @@ async function fetchJson<T>(url: URL, schema: z.ZodType<T>): Promise<T> {
   }
 }
 
-/**
- * Resolves a city name to its first geocoding match. Returns `null` when the
- * upstream response omits the `results` array — callers decide whether to
- * treat that as a `CityNotFoundError`.
- */
+/** Resolves a city to its first geocoding match. Returns `null` on no match. */
 export async function geocode(city: string): Promise<GeocodeResult | null> {
   const url = new URL('https://geocoding-api.open-meteo.com/v1/search')
   url.searchParams.set('name', city)
@@ -89,11 +76,7 @@ export async function geocode(city: string): Promise<GeocodeResult | null> {
   return result.results?.[0] ?? null
 }
 
-/**
- * Fetches the current-conditions block for a lat/lon pair. A missing `current`
- * field is treated as an upstream contract violation (thrown via the schema).
- * Timestamps come back as naive local time because `timezone=auto` is set.
- */
+/** Fetches current conditions for a lat/lon pair. Timestamps are naive local time (`timezone=auto`). */
 export async function fetchForecast(
   lat: number,
   lon: number,

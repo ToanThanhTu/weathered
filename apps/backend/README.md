@@ -14,6 +14,7 @@ See [`CLAUDE.md`](./CLAUDE.md) for conventions and per-layer rules, and the root
 - **helmet** — security headers
 - **express-rate-limit** — per-IP throttling on `/api/weather`
 - **lru-cache** — bounded memory cache with 5-min TTL
+- **Vitest 4** + **Supertest** — in-process integration tests against `createServer()`
 
 ## Getting started
 
@@ -47,7 +48,7 @@ Validated at startup via Zod — missing or invalid values cause immediate `proc
 | `pnpm start`     | `node dist/index.js` with native env-file loading        |
 | `pnpm typecheck` | `tsc --noEmit`                                           |
 | `pnpm lint`      | `eslint src`                                             |
-| `pnpm test`      | `vitest` (Supertest integration tests — pending Day 3)   |
+| `pnpm test`      | `vitest run` — Supertest integration tests against `createServer()` |
 
 ## HTTP API
 
@@ -88,11 +89,25 @@ src/
 ├── server.ts         # createServer() app factory
 ├── config.ts         # Zod-validated env
 ├── logger.ts         # pino instance
-├── routes/           # HTTP adapters (→ CLAUDE.md)
+├── routes/           # HTTP adapters + colocated .test.ts files (→ CLAUDE.md)
 ├── cache/            # generic cached() HOF + per-domain instances (→ CLAUDE.md)
 ├── services/         # orchestration + upstream clients (→ CLAUDE.md)
 ├── errors/           # AppError hierarchy (→ CLAUDE.md)
-└── middleware/       # error handler + rate limiter (→ CLAUDE.md)
+├── middleware/       # error handler + rate limiter (→ CLAUDE.md)
+└── test/             # Vitest setup: loads .env.test via Node's loadEnvFile
 ```
 
 Dependency direction is one-way: **`routes → cache → services → upstream clients`**.
+
+## Testing
+
+```sh
+pnpm test          # one-shot (CI)
+pnpm test:watch    # watch mode
+```
+
+- Tests live next to the code they exercise: `routes/weather.test.ts` sits beside `routes/weather.ts`.
+- A setup file (`src/test/setup.ts`) loads `.env.test` before `config.ts` runs — required because env validation is module-scoped.
+- Tests call `createServer()` directly via Supertest — no port binding, no real network.
+- `fetch` is mocked per test with `vi.stubGlobal('fetch', vi.fn())` and reset in `afterEach`.
+- **Different city per test** avoids LRU cache contamination across tests in the same process.
