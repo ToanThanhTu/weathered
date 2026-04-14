@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+/** Composes Tailwind classes. `clsx` handles conditionals; `tailwind-merge` resolves conflicts (`"p-4 p-8"` becomes `"p-8"`). */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

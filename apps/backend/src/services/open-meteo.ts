@@ -78,7 +78,7 @@ export async function geocode(city: string): Promise<GeocodeResult | null> {
   return result.results?.[0] ?? null
 }
 
-/** Fetches current conditions for a lat/lon pair. Returns naive local-time `current.time` plus `timezone` (IANA) and `utc_offset_seconds` — the service layer converts these into a real UTC ISO for downstream consumers. */
+/** Fetches current conditions for a lat/lon pair. Returns naive local-time `current.time` plus `timezone` (IANA) and `utc_offset_seconds`: the service layer converts these into a real UTC ISO for downstream consumers. */
 export async function fetchForecast(
   lat: number,
   lon: number,

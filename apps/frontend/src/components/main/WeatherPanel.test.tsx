@@ -72,10 +72,12 @@ describe('<WeatherPanel>', () => {
     renderWithQuery(<WeatherPanel city="Sydney" />)
 
     await waitFor(() => {
-      expect(screen.getByText(/sydney weather/i)).toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { name: /sydney/i }),
+      ).toBeInTheDocument()
     })
 
-    expect(screen.getByText(/22\.5°C/)).toBeInTheDocument()
+    expect(screen.getByText('23°')).toBeInTheDocument()
     expect(screen.getByText(/mainly clear/i)).toBeInTheDocument()
   })
 

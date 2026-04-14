@@ -126,8 +126,6 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-interview-prep.md
-
 # yarn v3
 .pnp.*
 .yarn/*

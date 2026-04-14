@@ -6,14 +6,14 @@ See [`CLAUDE.md`](./CLAUDE.md) for conventions and per-layer rules, and the root
 
 ## Stack
 
-- **Vite 8** (Rolldown) — dev server + build
-- **React 19** + **React Compiler** (babel plugin) — auto-memoization
-- **TypeScript 6** — strict mode, project references
-- **Tailwind CSS v4** — CSS-first config via `@theme`
-- **shadcn/ui** (Radix) — component primitives
-- **TanStack Query v5** — server-state cache
-- **Zod 4** — form validation via `@weathered/shared`
-- **Vitest 4** + **React Testing Library** + **jsdom** — component tests
+- **Vite 8** (Rolldown): dev server + build
+- **React 19** + **React Compiler** (babel plugin): auto-memoization
+- **TypeScript 6**: strict mode, project references
+- **Tailwind CSS v4**: CSS-first config via `@theme`
+- **shadcn/ui** (Radix): component primitives
+- **TanStack Query v5**: server-state cache
+- **Zod 4**: form validation via `@weathered/shared`
+- **Vitest 4** + **React Testing Library** + **jsdom**: component tests
 
 ## Getting started
 
@@ -35,7 +35,7 @@ Dev server runs on `http://localhost:5173`. Vite proxies `/api/*` to the backend
 | `pnpm preview`    | Preview the production build locally                |
 | `pnpm typecheck`  | `tsc -b --noEmit` across project refs               |
 | `pnpm lint`       | ESLint with React + type-aware rules                |
-| `pnpm test`       | `vitest run` — component tests against jsdom        |
+| `pnpm test`       | `vitest run`: component tests against jsdom        |
 | `pnpm test:watch` | Vitest in watch mode                                |
 
 ## Project structure
@@ -71,8 +71,8 @@ pnpm test:watch    # watch mode
 - Tests live beside the components they cover: `components/main/WeatherPanel.test.tsx` beside `WeatherPanel.tsx`.
 - `renderWithQuery()` wraps each test render in a fresh `QueryClient` with `retry: false` so error-state tests surface immediately.
 - `fetch` is mocked per test with `vi.stubGlobal('fetch', vi.fn())`.
-- Queries favour `getByRole` / `getByText` over `data-testid`. Skeletons have no accessible text and are queried by `data-slot="skeleton"` — the one place the tests inspect a DOM attribute directly.
+- Queries favour `getByRole` / `getByText` over `data-testid`. Skeletons have no accessible text, so they're queried by `data-slot="skeleton"`. That's the one place the tests inspect a DOM attribute directly.
 
 ## Environment
 
-No env vars required in dev — Vite's proxy handles the backend URL. Production builds read `VITE_API_BASE_URL` (wired up as part of Day 4 deployment).
+No env vars required in dev. Vite's proxy handles the backend URL. Production builds read `VITE_API_BASE_URL` (wired up as part of Day 4 deployment).

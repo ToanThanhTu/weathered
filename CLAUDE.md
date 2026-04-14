@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Project-wide guidance for Claude Code sessions in the `weathered` repo.
+Project-wide guidance for this repo. Each layer has its own nested CLAUDE.md for per-file details and conventions.
 
-For scope-specific rules, see the nested CLAUDE.md files:
+Nested docs:
 
 - [`apps/backend/CLAUDE.md`](apps/backend/CLAUDE.md) — backend app patterns + testing setup
 - [`apps/backend/src/routes/CLAUDE.md`](apps/backend/src/routes/CLAUDE.md) — HTTP route handlers
@@ -19,7 +19,7 @@ For scope-specific rules, see the nested CLAUDE.md files:
 
 ## Project context
 
-Weathered is a full-stack weather app built for the NSW Rural Fire Service Junior Full Stack Developer technical assignment. The full plan lives in [`docs/Weathered-plan.md`](docs/Weathered-plan.md) — read it first for architecture, schedule, and walkthrough talking points.
+Weathered is a full-stack weather app built for the NSW Rural Fire Service Junior Full Stack Developer technical assignment. The full plan lives in [`docs/Weathered-plan.md`](docs/Weathered-plan.md) — start there for architecture, schedule, and build history.
 
 **Hard deadline:** submit EOD 2026-04-14. Interview 2026-04-16.
 
@@ -75,8 +75,8 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 
 ### Testing
 
-- Vitest everywhere. Backend uses Supertest against `createServer()`; frontend uses React Testing Library + jsdom.
-- One meaningful integration test per critical path — do not write tests to inflate coverage.
+- Vitest everywhere. Backend uses Supertest against `createServer()`. Frontend uses React Testing Library + jsdom.
+- One meaningful integration test per critical path. Coverage-for-coverage's-sake tests are not welcome.
 - Shared types via `@weathered/shared` are the contract. Happy-path backend tests parse responses with `WeatherResponseSchema` to double as a contract check.
 - Test files colocate with source (`weather.test.ts` beside `weather.ts`). Setup files live in `src/test/`.
 - See each app's CLAUDE.md for writing-test conventions.
@@ -91,10 +91,10 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 
 ## What not to do
 
-- Don't install `dotenv` — we use Node 24's native env-file support.
-- Don't use `node-cache` — we use `lru-cache` for bounded memory (see plan §6.5).
-- Don't write backend `tsc` builds with `declaration: true` — only `packages/shared` emits declarations; apps override with `declaration: false`.
-- Don't add routing libraries to the frontend — a single page with `?city=` URL state is sufficient.
+- Don't install `dotenv` — Node 24's native `--env-file` is what the scripts use.
+- Don't use `node-cache` — `lru-cache` is the chosen store because it bounds memory via LRU eviction on top of TTL.
+- Don't enable `declaration: true` in backend or frontend tsconfigs. Only `packages/shared` emits declarations; apps override to `false`.
+- Don't add routing libraries to the frontend. A single page with `?city=` URL state is sufficient.
 - Don't expand scope beyond the plan. The §14 "Do NOT build" list is binding.
 
 ## Root-level files

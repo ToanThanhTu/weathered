@@ -604,6 +604,85 @@ Fix (touches 5 files):
 
 Service layer owns the normalization — frontend just renders a UTC Date in a given `timeZone`. Talking point: "a user in Sydney searching London sees London-local observation time, not browser-local, because the service layer normalizes upstream quirks at the boundary."
 
+#### UI / UX polish (2026-04-14)
+
+Day 4 morning + afternoon went into a Lyra-inspired visual overhaul plus dark mode and responsive breakpoints. Highlights:
+
+**Design tokens (`app.css`):**
+
+- `--radius: 0` — square corners throughout. Cascades via the `@theme inline` chain of `--radius-sm/md/lg/xl` so every shadcn component becomes square with a single token change.
+- `--rfs-red: oklch(0.58 0.22 28)` light mode, `oklch(0.66 0.22 28)` dark mode. Exposed as `--color-rfs-red` in `@theme inline` so `bg-rfs-red`, `border-rfs-red`, `ring-rfs-red`, `text-rfs-red` utilities become available.
+- Off-white backgrounds: `:root` `--background` / `--card` / `--popover` changed from `oklch(1 0 0)` (pure white) to `oklch(0.985 0 0)` (≈ `#fafafa`).
+- Off-black was already in place via the original shadcn dark-theme tokens.
+
+**Typography:**
+
+- `--font-sans`: `'Arial', 'Helvetica', system-ui, sans-serif` — matches RFS's own website, ships with every OS.
+- `--font-heading`: `'Gotham', 'Montserrat Variable', 'Arial', 'Helvetica', system-ui, sans-serif`. Gotham is RFS's actual brand font (Hoefler & Co., proprietary, not committed). Montserrat is the open-source Gotham fallback, self-hosted via `@fontsource-variable/montserrat`.
+- Dead imports removed: Inter and Roboto (along with the `@theme inline` override of `--font-sans: 'Inter Variable'`) — ~60KB saved.
+- All three font tokens consolidated into the root `@theme` block (not `@theme inline`).
+- `html { @apply font-mono }` line removed from `@layer base` — was a shadcn-init leftover that forced monospace on everything.
+
+**Single accent:**
+
+RFS red used in exactly three places to stay restrained:
+
+1. Header underline bar (`border-b-4 border-rfs-red`)
+2. Search input focus ring (`focus-visible:ring-rfs-red`)
+3. Search button hover state (`hover:bg-rfs-red`)
+
+**Dark mode:**
+
+- `hooks/useTheme.ts` — lazy-initialised state from `localStorage` → `prefers-color-scheme` → light default. `useEffect` syncs the `dark` class on `<html>` and writes to `localStorage`. `try/catch` around storage access for Safari private mode.
+- `components/ThemeToggle.tsx` — square icon button using `lucide-react`'s `Sun` / `Moon`. Shows the icon for the **target** theme (sun when dark, moon when light) matching GitHub/Vercel convention. Dynamic `aria-label` reflects the action.
+- `index.html` — inline IIFE in `<head>` sets the `dark` class before paint, reading `localStorage` first then `prefers-color-scheme`. Mirrors the hook's logic to prevent a flash of the wrong theme.
+- Two `<meta name="theme-color">` tags with `media="(prefers-color-scheme: ...)"` sync the browser chrome (Safari address bar, Android status bar) to the OS preference. They don't follow the in-app toggle — a known trade-off because iOS Safari caches the first value and won't reliably update.
+- `<meta name="color-scheme" content="light dark">` enables dark-aware native scrollbars and form controls.
+
+**WeatherCard redesign:**
+
+- Header row: country kicker with `MapPin` icon → bold city name → coordinates on the right in `font-mono text-xs`. Stacks `flex-col → sm:flex-row`.
+- Hero: rounded temperature at `text-7xl → sm:text-8xl` with `font-heading font-black tabular-nums`. Condition and "feels like" sit inline beside (or below on mobile).
+- 3-column metric grid: Humidity, Wind, Direction, separated by `border-l`. `Droplets` and `Wind` icons from lucide. Extracted into an internal `Metric` subcomponent.
+- Observed-at footer strip at the bottom in small uppercase muted text.
+- `Card` uses `border-2` — thicker borders to match the Lyra aesthetic.
+- `Math.round(temperature)` so the hero reads `23°`, not `22.48°`.
+
+**SearchBar redesign:**
+
+- Dropped the wrapping `Card` — was creating a visual box inside the main container, competing with the WeatherCard below.
+- Input: `h-12 border-2 text-base` with `focus-visible:ring-rfs-red`. `md:text-base` counters shadcn's default `md:text-xs` override.
+- Button: `h-12 px-6 text-base bg-foreground text-background hover:bg-rfs-red`.
+- Label uses the small uppercase-tracked pattern so it matches the kicker style in WeatherCard and EmptyState.
+
+**EmptyState redesign:**
+
+- `border-2 border-dashed` signals "not populated yet" without a separate icon.
+- Same kicker + heading + muted body rhythm as WeatherCard for visual consistency.
+- Example cities as `font-mono text-xs` bordered chips — hints at what to type in a developer-tool aesthetic.
+
+**LoadingSkeleton:**
+
+- Rewritten to mirror the new `WeatherCard` layout exactly — same header structure, same hero proportions, same 3-column metric grid, same footer. Zero layout shift on transition from loading → success.
+- Uses the `cn()` responsive pattern to match every WeatherCard breakpoint.
+
+**Responsive (single `sm:` breakpoint, cn() convention):**
+
+- Max content width capped by `max-w-3xl` on `<main>`. Only one breakpoint needed: `sm:` (640px).
+- `className={cn('mobile base', 'sm:overrides')}` — one string argument per breakpoint tier for scannable responsive classNames.
+- Elements that respond: h1 text size, WeatherCard header flex direction, hero flex direction + temperature size, metric cell padding, metric value size. LoadingSkeleton tracks every change.
+- SearchBar stays horizontal at all widths (ButtonGroup joins input + button cleanly even at 320px).
+
+**Test fixture updates:**
+
+- Frontend fixture gains `timezone: 'Australia/Sydney'` and `observedAt` becomes a real UTC ISO string.
+- Success-state test assertion updated: heading is now just `"Sydney"` (not `"Sydney Weather"`), temperature is `"23°"` rounded.
+- Backend fixture gains `timezone` and `utc_offset_seconds` at the envelope root (alongside `current`).
+
+**Screenshots:**
+
+- `docs/light-view.png` and `docs/dark-view.png` captured via Chrome DevTools device mode at 1280px width, cropped to page content. Referenced in the root README.
+
 **Evening — rehearsal & submit**
 
 - [ ] First full walkthrough rehearsal, out loud, timed (target 20–25 min)

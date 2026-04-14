@@ -81,11 +81,11 @@ Tests use Vitest + Supertest and live alongside the code under test (`routes/wea
 
 ### Writing backend tests
 
-- **Use Supertest against `createServer()`.** Factory pattern pays off here — each test gets a fresh app instance, no port binding.
-- **Mock `fetch` via `vi.stubGlobal('fetch', vi.fn())`.** Reset with `vi.unstubAllGlobals()` in `afterEach`.
-- **Queue multiple `mockResolvedValueOnce` calls** when the code under test makes multiple `fetch` calls in sequence (e.g., the happy-path weather flow: geocode then forecast). Plain `mockResolvedValue` would return the same payload to both calls and the second schema parse would fail.
+- **Supertest against `createServer()`** — the factory pattern pays off here. Each test gets a fresh app instance with no port binding.
+- **Mock `fetch` via `vi.stubGlobal('fetch', vi.fn())`** and reset with `vi.unstubAllGlobals()` in `afterEach`.
+- **Queue multiple `mockResolvedValueOnce` calls** when the code under test makes multiple `fetch` calls in sequence (the happy-path weather flow is geocode then forecast). Plain `mockResolvedValue` would return the same payload to both calls and the second schema parse would fail.
 - **Parse success responses with the shared Zod schema** (`WeatherResponseSchema.parse(res.body)`) — doubles as a contract test against `@weathered/shared`.
-- **Cast error responses to `ErrorResponse`** — we control both ends of the envelope; a full parse in every test is overkill.
+- **Cast error responses to `ErrorResponse`** — the envelope is controlled end-to-end; a full parse in every test is overkill.
 - **Use a different city per test** to avoid the module-scoped LRU cache contaminating state across tests.
 
 ## Dockerfile

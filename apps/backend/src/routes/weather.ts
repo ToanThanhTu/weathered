@@ -5,7 +5,7 @@ import { WeatherQuerySchema } from '@weathered/shared'
 import { getCachedWeather } from '../cache/weather.cache.js'
 import { ValidationError } from '../errors/app-error.js'
 
-/** `GET /api/weather` — validates `?city=` and returns a normalized `WeatherResponse`. Typed errors bubble to the central handler. */
+/** `GET /api/weather`: validates `?city=` and returns a normalized `WeatherResponse`. Typed errors bubble to the central handler. */
 export const weatherRouter: Router = Router()
 
 weatherRouter.get('/', async (req, res) => {

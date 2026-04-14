@@ -4,7 +4,38 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta
+      name="description"
+      content="Weather app consuming Open-Meteo, built for the NSW RFS technical assignment."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      content="#fafafa"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#252525"
+      media="(prefers-color-scheme: dark)"
+    />
+    <title>Weathered</title>
+    <script>
+      // Set the theme class before paint to avoid a flash of the wrong theme.
+      // Mirrored at runtime by useTheme() in src/hooks/useTheme.ts.
+      (function () {
+        try {
+          var stored = localStorage.getItem('weathered-theme')
+          var theme =
+            stored === 'dark' || stored === 'light'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          if (theme === 'dark') document.documentElement.classList.add('dark')
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

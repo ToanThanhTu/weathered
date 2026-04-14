@@ -13,21 +13,21 @@ export class AppError extends Error {
   }
 }
 
-/** 400 — request failed schema validation. `details` carries `z.treeifyError` output. */
+/** 400: request failed schema validation. `details` carries `z.treeifyError` output. */
 export class ValidationError extends AppError {
   constructor(message: string, details?: unknown) {
     super(400, ERROR_CODES.VALIDATION_ERROR, message, details)
   }
 }
 
-/** 404 — the Open-Meteo geocoder returned no results for the supplied city. */
+/** 404: the Open-Meteo geocoder returned no results for the supplied city. */
 export class CityNotFoundError extends AppError {
   constructor(message: string) {
     super(404, ERROR_CODES.CITY_NOT_FOUND, message)
   }
 }
 
-/** 502 — upstream call failed: non-2xx, timeout, network error, or unexpected response shape. */
+/** 502. Upstream call failed (non-2xx, timeout, network error, or unexpected response shape). */
 export class UpstreamError extends AppError {
   constructor(message: string) {
     super(502, ERROR_CODES.UPSTREAM_ERROR, message)

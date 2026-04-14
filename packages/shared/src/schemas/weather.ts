@@ -17,6 +17,7 @@ export type WeatherQuery = z.infer<typeof WeatherQuerySchema>
 
 // Success
 
+/** Sub-schema of `WeatherResponseSchema`. Resolved city coordinates from the geocoder. */
 export const LocationSchema = z.object({
   name: z.string(),
   country: z.string(),
@@ -24,6 +25,7 @@ export const LocationSchema = z.object({
   longitude: z.number(),
 })
 
+/** Sub-schema of `WeatherResponseSchema`. Current conditions in metric units. `observedAt` is a UTC ISO string; `timezone` is the IANA name so the frontend can format it in the city's local time. */
 export const CurrentWeatherSchema = z.object({
   temperature: z.number(),
   apparentTemperature: z.number(),
@@ -49,6 +51,7 @@ export type WeatherResponse = z.infer<typeof WeatherResponseSchema>
 
 // Error
 
+/** Cross-layer error code constants. Used as the `code` field on backend `AppError` subclasses and as the discriminator in frontend `ErrorState`. */
 export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   CITY_NOT_FOUND: 'CITY_NOT_FOUND',

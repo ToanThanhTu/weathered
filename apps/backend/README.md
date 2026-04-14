@@ -6,15 +6,15 @@ See [`CLAUDE.md`](./CLAUDE.md) for conventions and per-layer rules, and the root
 
 ## Stack
 
-- **Node.js 24** — native `--env-file` flag (no `dotenv`), native `fetch`
-- **Express 5** — async error propagation (no `try`/`catch` in handlers)
-- **TypeScript 6** — strict, `NodeNext` module resolution
-- **Zod 4** — env validation + request validation + upstream response validation
-- **pino** + **pino-http** — structured JSON logging with per-request IDs
-- **helmet** — security headers
-- **express-rate-limit** — per-IP throttling on `/api/weather`
-- **lru-cache** — bounded memory cache with 5-min TTL
-- **Vitest 4** + **Supertest** — in-process integration tests against `createServer()`
+- **Node.js 24**: native `--env-file` flag (no `dotenv`), native `fetch`
+- **Express 5**: async error propagation (no `try`/`catch` in handlers)
+- **TypeScript 6**: strict, `NodeNext` module resolution
+- **Zod 4**: env validation + request validation + upstream response validation
+- **pino** + **pino-http**: structured JSON logging with per-request IDs
+- **helmet**: security headers
+- **express-rate-limit**: per-IP throttling on `/api/weather`
+- **lru-cache**: bounded memory cache with 5-min TTL
+- **Vitest 4** + **Supertest**: in-process integration tests against `createServer()`
 
 ## Getting started
 
@@ -34,10 +34,10 @@ Dev server runs on `http://localhost:3000` via `tsx watch` with Node 24's `--env
 | ---------------- | -------- | ----------------- | --------------------------------------------------- |
 | `NODE_ENV`       | no       | `development`     | `development` \| `production` \| `test`             |
 | `PORT`           | no       | `3000`            | HTTP listen port                                    |
-| `ALLOWED_ORIGIN` | **yes**  | —                 | Frontend origin for CORS allowlist                  |
+| `ALLOWED_ORIGIN` | **yes**  | _(none)_          | Frontend origin for CORS allowlist                  |
 | `LOG_LEVEL`      | no       | `info`            | pino level (`fatal` → `trace`)                      |
 
-Validated at startup via Zod — missing or invalid values cause immediate `process.exit(1)`.
+Validated at startup via Zod: missing or invalid values cause immediate `process.exit(1)`.
 
 ## Scripts
 
@@ -48,13 +48,13 @@ Validated at startup via Zod — missing or invalid values cause immediate `proc
 | `pnpm start`     | `node dist/index.js` with native env-file loading        |
 | `pnpm typecheck` | `tsc --noEmit`                                           |
 | `pnpm lint`      | `eslint src`                                             |
-| `pnpm test`      | `vitest run` — Supertest integration tests against `createServer()` |
+| `pnpm test`      | `vitest run`: Supertest integration tests against `createServer()` |
 
 ## HTTP API
 
 | Method | Path                           | Description                                                         |
 | ------ | ------------------------------ | ------------------------------------------------------------------- |
-| `GET`  | `/api/health`                  | Liveness probe — `{ status, uptime, timestamp }`                    |
+| `GET`  | `/api/health`                  | Liveness probe: `{ status, uptime, timestamp }`                    |
 | `GET`  | `/api/weather?city=<string>`   | Geocode + forecast + normalize. Cached for 5 minutes per city name. |
 
 Rate limit: 60 requests per minute per IP on `/api/weather`. `/api/health` is unlimited for infrastructure checks.
@@ -85,7 +85,7 @@ All failures return a uniform `ErrorResponse`:
 
 ```
 src/
-├── index.ts          # entrypoint — listen, graceful shutdown, Happy Eyeballs fix
+├── index.ts          # entrypoint: listen, graceful shutdown, Happy Eyeballs fix
 ├── server.ts         # createServer() app factory
 ├── config.ts         # Zod-validated env
 ├── logger.ts         # pino instance
@@ -107,7 +107,7 @@ pnpm test:watch    # watch mode
 ```
 
 - Tests live next to the code they exercise: `routes/weather.test.ts` sits beside `routes/weather.ts`.
-- A setup file (`src/test/setup.ts`) loads `.env.test` before `config.ts` runs — required because env validation is module-scoped.
-- Tests call `createServer()` directly via Supertest — no port binding, no real network.
+- A setup file (`src/test/setup.ts`) loads `.env.test` before `config.ts` runs: required because env validation is module-scoped.
+- Tests call `createServer()` directly via Supertest: no port binding, no real network.
 - `fetch` is mocked per test with `vi.stubGlobal('fetch', vi.fn())` and reset in `afterEach`.
 - **Different city per test** avoids LRU cache contamination across tests in the same process.
