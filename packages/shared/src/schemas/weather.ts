@@ -32,6 +32,7 @@ export const CurrentWeatherSchema = z.object({
   windDirection: z.number(),
   condition: z.string(),
   observedAt: z.string(),
+  timezone: z.string(),
 })
 
 /** Normalized success response for `GET /api/weather`. Upstream Open-Meteo payloads are mapped to this shape. */

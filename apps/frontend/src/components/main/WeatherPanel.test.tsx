@@ -18,7 +18,8 @@ const weatherResponse = {
       windSpeed: 12.4,
       windDirection: 180,
       condition: 'Mainly clear',
-      observedAt: '2026-04-13T10:00',
+      observedAt: '2026-04-13T00:00:00Z',
+      timezone: 'Australia/Sydney',
     },
   },
 }

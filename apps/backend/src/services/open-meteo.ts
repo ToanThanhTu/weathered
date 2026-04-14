@@ -16,10 +16,12 @@ const ForecastResultSchema = z.object({
 })
 
 const ForecastResponseSchema = z.object({
+  utc_offset_seconds: z.number(),
+  timezone: z.string(),
   current: ForecastResultSchema,
 })
 
-type ForecastResult = z.infer<typeof ForecastResultSchema>
+type ForecastResponse = z.infer<typeof ForecastResponseSchema>
 
 const GeocodeResultSchema = z.object({
   name: z.string(),
@@ -76,11 +78,11 @@ export async function geocode(city: string): Promise<GeocodeResult | null> {
   return result.results?.[0] ?? null
 }
 
-/** Fetches current conditions for a lat/lon pair. Timestamps are naive local time (`timezone=auto`). */
+/** Fetches current conditions for a lat/lon pair. Returns naive local-time `current.time` plus `timezone` (IANA) and `utc_offset_seconds` — the service layer converts these into a real UTC ISO for downstream consumers. */
 export async function fetchForecast(
   lat: number,
   lon: number,
-): Promise<ForecastResult> {
+): Promise<ForecastResponse> {
   const url = new URL('https://api.open-meteo.com/v1/forecast')
   url.searchParams.set('latitude', String(lat))
   url.searchParams.set('longitude', String(lon))
@@ -92,5 +94,5 @@ export async function fetchForecast(
 
   const result = await fetchJson(url, ForecastResponseSchema)
 
-  return result.current
+  return result
 }

@@ -8,7 +8,8 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch"
   },
   "engines": {
     "node": ">=24"

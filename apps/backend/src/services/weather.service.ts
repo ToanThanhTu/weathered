@@ -1,6 +1,6 @@
 import type { WeatherResponse } from '@weathered/shared'
-import { fetchForecast, geocode } from './open-meteo.js'
 import { CityNotFoundError } from '../errors/app-error.js'
+import { fetchForecast, geocode } from './open-meteo.js'
 
 /** Orchestrates geocode → forecast → normalize. Throws `CityNotFoundError` when the geocoder has no match. */
 export async function getWeather(city: string): Promise<WeatherResponse> {
@@ -10,10 +10,12 @@ export async function getWeather(city: string): Promise<WeatherResponse> {
     throw new CityNotFoundError(`City ${city} not found.`)
   }
 
-  const weatherResult = await fetchForecast(
+  const forecast = await fetchForecast(
     geocodeResult.latitude,
     geocodeResult.longitude,
   )
+
+  const { utc_offset_seconds, timezone, current } = forecast
 
   const weatherResponse: WeatherResponse = {
     data: {
@@ -24,13 +26,14 @@ export async function getWeather(city: string): Promise<WeatherResponse> {
         longitude: geocodeResult.longitude,
       },
       current: {
-        temperature: weatherResult.temperature_2m,
-        apparentTemperature: weatherResult.apparent_temperature,
-        humidity: weatherResult.relative_humidity_2m,
-        windSpeed: weatherResult.wind_speed_10m,
-        windDirection: weatherResult.wind_direction_10m,
-        condition: weatherCodeToCondition(weatherResult.weather_code),
-        observedAt: weatherResult.time,
+        temperature: current.temperature_2m,
+        apparentTemperature: current.apparent_temperature,
+        humidity: current.relative_humidity_2m,
+        windSpeed: current.wind_speed_10m,
+        windDirection: current.wind_direction_10m,
+        condition: weatherCodeToCondition(current.weather_code),
+        observedAt: localToUtcIso(current.time, utc_offset_seconds),
+        timezone
       },
     },
   }
@@ -71,4 +74,12 @@ const WEATHER_CODES = new Map<number, string>([
 
 function weatherCodeToCondition(code: number): string {
   return WEATHER_CODES.get(code) ?? 'Unknown'
+}
+
+/** Converts Open-Meteo's naive local time + offset seconds to a real UTC ISO string. */
+function localToUtcIso(local: string, offsetSeconds: number): string {
+  const utc = new Date(local + 'Z')
+  const actual = new Date(utc.getTime() - offsetSeconds * 1000)
+
+  return actual.toISOString()
 }

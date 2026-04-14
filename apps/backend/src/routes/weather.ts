@@ -2,7 +2,6 @@ import { Router } from 'express'
 import * as z from 'zod'
 
 import { WeatherQuerySchema } from '@weathered/shared'
-
 import { getCachedWeather } from '../cache/weather.cache.js'
 import { ValidationError } from '../errors/app-error.js'
 

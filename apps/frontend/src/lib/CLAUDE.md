@@ -23,4 +23,4 @@ Shared utilities and the API client layer. See [`apps/frontend/CLAUDE.md`](../..
 ### `utils.ts` — shared helpers
 
 - **`cn(...inputs)`** — clsx + tailwind-merge. Prevents class conflicts (`"p-4 p-8"` → `"p-8"`). Used by every shadcn/ui component and custom components for conditional styling.
-- **`formatDate(date)`** — formats a naive ISO string to en-AU locale via `Intl.DateTimeFormat`. Note: `new Date()` interprets naive strings as browser-local time, not city-local time. Acceptable for this scope; a future improvement would plumb the UTC offset from the forecast response.
+- **`formatDate(date, timeZone)`** — formats a UTC ISO string in the given IANA timezone via `Intl.DateTimeFormat`. Displays observation time in the **city's** local time, not the browser's. The timezone is plumbed from Open-Meteo's `timezone=auto` response through `@weathered/shared`.

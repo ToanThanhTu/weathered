@@ -1,5 +1,4 @@
-import type { ErrorResponse, WeatherResponse } from '@weathered/shared'
-import { WeatherResponseSchema } from '@weathered/shared'
+import { ErrorResponse, WeatherResponse, WeatherResponseSchema } from '@weathered/shared'
 import request from 'supertest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createServer } from '../server.js'
@@ -20,6 +19,8 @@ const geocodeEmptyResponse = {
 }
 
 const forecastSydneyResponse = {
+  utc_offset_seconds: 0,
+  timezone: "Australia/Sydney",
   current: {
     time: '2026-04-13T10:00',
     temperature_2m: 22.5,

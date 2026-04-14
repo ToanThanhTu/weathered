@@ -6,7 +6,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      ALLOWED_ORIGIN: http://localhost:80
+      ALLOWED_ORIGIN: http://localhost # frontend url
       LOG_LEVEL: info
     ports:
       - '3000:3000'

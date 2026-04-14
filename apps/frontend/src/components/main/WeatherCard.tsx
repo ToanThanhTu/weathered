@@ -40,7 +40,7 @@ export function WeatherCard({ weather }: WeatherCardProps) {
           <p>Humidity: {current.humidity}%</p>
           <p>Wind speed: {current.windSpeed}km/h</p>
           <p>Wind direction: {current.windDirection}°</p>
-          <p>Observed at: {formatDate(current.observedAt)}</p>
+          <p>Observed at: {formatDate(current.observedAt, current.timezone)}</p>
         </section>
       </CardContent>
     </Card>

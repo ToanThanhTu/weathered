@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "prepare": "tsc",
     "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit"

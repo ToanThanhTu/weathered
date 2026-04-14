@@ -589,6 +589,21 @@ Captures the walkthrough-style checkpoints we followed during Day 1 so future se
   - [`ErrorBoundary.tsx`](../apps/frontend/src/components/ErrorBoundary.tsx) line 28 — frontend has no pino; `console.error` in `componentDidCatch` is React's standard error-boundary reporting pattern.
 - One commented-out boundary test (`// if (city === 'throw error') throw new Error('boundary test')`) removed from `App.tsx`.
 
+#### Timezone fix (2026-04-14)
+
+Open-Meteo returns `current.time` as naive local time for the city, plus top-level `utc_offset_seconds` and IANA `timezone`. Previously the backend passed the naive string straight through, and the frontend fed it to `new Date()` — which interprets naive strings as **browser-local**, so a Sydney user searching London would see London's 10:00 labeled as Sydney 10:00.
+
+Fix (touches 5 files):
+
+- **`open-meteo.ts`** — extend `ForecastResponseSchema` with `utc_offset_seconds` + `timezone`; `fetchForecast` now returns the whole envelope instead of just `current`.
+- **`weather.service.ts`** — new private helper `localToUtcIso(local, offsetSeconds)` subtracts the offset from `new Date(local + 'Z')`. `getWeather` destructures the envelope and maps `observedAt` through the helper.
+- **`packages/shared/src/schemas/weather.ts`** — `CurrentWeatherSchema` gains `timezone: z.string()`. `observedAt` is now documented as a real UTC ISO string.
+- **`frontend/lib/utils.ts`** — `formatDate(date, timeZone)` passes `timeZone` into `Intl.DateTimeFormat` so output is in the **city's** local time regardless of browser locale.
+- **`frontend/components/main/WeatherCard.tsx`** — call site updated to pass `current.timezone`.
+- **Tests** — backend and frontend fixtures gain `timezone` / `utc_offset_seconds`.
+
+Service layer owns the normalization — frontend just renders a UTC Date in a given `timeZone`. Talking point: "a user in Sydney searching London sees London-local observation time, not browser-local, because the service layer normalizes upstream quirks at the boundary."
+
 **Evening — rehearsal & submit**
 
 - [ ] First full walkthrough rehearsal, out loud, timed (target 20–25 min)

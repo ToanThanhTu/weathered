@@ -31,7 +31,7 @@ Single file containing every schema shared across the weather feature. Current e
 | `WeatherQuerySchema`     | Zod schema      | `GET /api/weather` query — `city: trimmed string, 1-100 chars`. Used by both the backend route and the frontend search form. |
 | `WeatherQuery`           | inferred type   | Type alias for the above.                                               |
 | `LocationSchema`         | Zod schema      | `{ name, country, latitude, longitude }` — resolved city coordinates.   |
-| `CurrentWeatherSchema`   | Zod schema      | `{ temperature, apparentTemperature, humidity, windSpeed, windDirection, condition, observedAt }`. All units are metric; `observedAt` is a naive ISO string in the city's local time. |
+| `CurrentWeatherSchema`   | Zod schema      | `{ temperature, apparentTemperature, humidity, windSpeed, windDirection, condition, observedAt, timezone }`. Units are metric. `observedAt` is a real UTC ISO string; the backend converts Open-Meteo's naive local time via `utc_offset_seconds`. `timezone` is the IANA name (e.g. `Europe/London`) so the frontend can format in the city's local time via `Intl.DateTimeFormat({ timeZone })`. |
 | `WeatherResponseSchema`  | Zod schema      | `{ data: { location, current } }` — normalized success envelope.        |
 | `Location`, `CurrentWeather`, `WeatherResponse` | inferred types | Type aliases.                                   |
 | `ERROR_CODES`            | `as const`      | String constants: `VALIDATION_ERROR`, `CITY_NOT_FOUND`, `UPSTREAM_ERROR`, `RATE_LIMITED`, `INTERNAL_ERROR`. |

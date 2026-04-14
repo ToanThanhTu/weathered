@@ -5,13 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/** Formats a naive ISO date string to a human-readable en-AU locale string. */
-export function formatDate(date: string) {
+/** Formats a UTC ISO date string in the given IANA timezone (en-AU locale). */
+export function formatDate(date: string, timeZone: string) {
   const dateObj = new Date(date)
 
   const formatter = new Intl.DateTimeFormat('en-AU', {
     dateStyle: 'full',
     timeStyle: 'short',
+    timeZone,
   })
 
   return formatter.format(dateObj)
