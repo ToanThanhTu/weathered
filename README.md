@@ -49,27 +49,27 @@ Failure modes: validation errors, city-not-found, upstream 4xx/5xx/timeout, sche
 
 ## Tech stack
 
-| Layer         | Choice                                             | Rationale                                                                                          |
-| ------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Runtime       | **Node.js 24 LTS**                                 | Native `--env-file`, native `fetch`, top-level `await`. No `dotenv` needed.                        |
-| Language      | **TypeScript 6** (strict)                          | `noUncheckedIndexedAccess`, no `any` anywhere (grep yields zero).                                  |
-| Monorepo      | **pnpm 10 workspaces**                             | Strict dependency isolation, first-class workspace protocol, no extra orchestrator.                |
-| Shared types  | **`@weathered/shared`** (Zod 4)                    | Single source of truth for request/response shapes. Types derived via `z.infer`, never hand-written. |
-| Backend       | **Express 5**                                      | Stable, async error propagation, universally readable. Zero cognitive tax on the reviewer.         |
-| Validation    | **Zod 4**                                          | Env vars at startup (fail-fast), query params, upstream responses.                                 |
-| Logging       | **pino** + **pino-http**                           | Structured JSON, request-ID propagation via `x-request-id`, pretty transport in dev only.          |
-| Security      | **helmet** + explicit **CORS allowlist**           | Free defense-in-depth, never `*`.                                                                  |
-| Rate limiting | **express-rate-limit** (draft-8 headers)           | Path-scoped to `/api/weather`. `/api/health` stays unlimited for infra probes.                     |
+| Layer         | Choice                                             | Rationale                                                                                             |
+| ------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Runtime       | **Node.js 24 LTS**                                 | Native `--env-file`, native `fetch`, top-level `await`. No `dotenv` needed.                           |
+| Language      | **TypeScript 6** (strict)                          | `noUncheckedIndexedAccess`, no `any` anywhere (grep yields zero).                                     |
+| Monorepo      | **pnpm 10 workspaces**                             | Strict dependency isolation, first-class workspace protocol, no extra orchestrator.                   |
+| Shared types  | **`@weathered/shared`** (Zod 4)                    | Single source of truth for request/response shapes. Types derived via `z.infer`, never hand-written.  |
+| Backend       | **Express 5**                                      | Stable, async error propagation, universally readable. Zero cognitive tax on the reviewer.            |
+| Validation    | **Zod 4**                                          | Env vars at startup (fail-fast), query params, upstream responses.                                    |
+| Logging       | **pino** + **pino-http**                           | Structured JSON, request-ID propagation via `x-request-id`, pretty transport in dev only.             |
+| Security      | **helmet** + explicit **CORS allowlist**           | Free defense-in-depth, never `*`.                                                                     |
+| Rate limiting | **express-rate-limit** (draft-8 headers)           | Path-scoped to `/api/weather`. `/api/health` stays unlimited for infra probes.                        |
 | Caching       | **lru-cache** wrapped in a generic HOF             | Bounded memory via LRU, 5-min TTL, **single-flight** (concurrent callers share one upstream promise). |
-| Weather API   | **Open-Meteo**                                     | Free, no key, geocoding + forecast in the same API family.                                         |
-| Frontend      | **React 19** + **Vite 8** + **React Compiler**     | Form actions, auto-memoization (no manual `useMemo`/`useCallback`), Rolldown build.                |
-| UI            | **Tailwind v4** + **shadcn/ui**                    | CSS-first `@theme`, OKLCH colors, Radix primitives. Lyra-inspired square corners.                  |
-| Data fetching | **TanStack Query v5**                              | `enabled` gating gives idle state for free. `staleTime: 5min` matches backend cache TTL.           |
-| Forms         | **React 19 form actions**                          | `<form action={handler}>`, no `preventDefault` boilerplate.                                        |
-| Icons         | **lucide-react**                                   | Tree-shakeable, matches shadcn aesthetic.                                                          |
-| Testing       | **Vitest 4** + **Supertest** + **RTL** + **jsdom** | In-process backend tests via the `createServer()` factory. Role-based frontend queries.           |
-| CI            | **GitHub Actions**                                 | `lint → typecheck → test` on push and PR, concurrency groups, frozen lockfile.                     |
-| Container     | **Multi-stage Docker** + **nginx** reverse proxy   | Compose brings up the whole stack. nginx proxies `/api` to backend (same-origin).                  |
+| Weather API   | **Open-Meteo**                                     | Free, no key, geocoding + forecast in the same API family.                                            |
+| Frontend      | **React 19** + **Vite 8** + **React Compiler**     | Form actions, auto-memoization (no manual `useMemo`/`useCallback`), Rolldown build.                   |
+| UI            | **Tailwind v4** + **shadcn/ui**                    | CSS-first `@theme`, OKLCH colors, Radix primitives. Lyra-inspired square corners.                     |
+| Data fetching | **TanStack Query v5**                              | `enabled` gating gives idle state for free. `staleTime: 5min` matches backend cache TTL.              |
+| Forms         | **React 19 form actions**                          | `<form action={handler}>`, no `preventDefault` boilerplate.                                           |
+| Icons         | **lucide-react**                                   | Tree-shakeable, matches shadcn aesthetic.                                                             |
+| Testing       | **Vitest 4** + **Supertest** + **RTL** + **jsdom** | In-process backend tests via the `createServer()` factory. Role-based frontend queries.               |
+| CI            | **GitHub Actions**                                 | `lint → typecheck → test` on push and PR, concurrency groups, frozen lockfile.                        |
+| Container     | **Multi-stage Docker** + **nginx** reverse proxy   | Compose brings up the whole stack. nginx proxies `/api` to backend (same-origin).                     |
 
 See [`docs/Weathered-plan.md`](docs/Weathered-plan.md) for the full build log and decision history.
 
@@ -120,10 +120,10 @@ The backend has a healthcheck and the frontend `depends_on: { backend: { conditi
 
 ## HTTP API
 
-| Method | Path                            | Description                                                      |
-| ------ | ------------------------------- | ---------------------------------------------------------------- |
-| `GET`  | `/api/health`                   | Liveness probe: `{ status, uptime, timestamp }`. Unlimited.      |
-| `GET`  | `/api/weather?city=<string>`    | Geocode + forecast + normalize. Cached 5 min per normalized city. |
+| Method | Path                         | Description                                                       |
+| ------ | ---------------------------- | ----------------------------------------------------------------- |
+| `GET`  | `/api/health`                | Liveness probe: `{ status, uptime, timestamp }`. Unlimited.       |
+| `GET`  | `/api/weather?city=<string>` | Geocode + forecast + normalize. Cached 5 min per normalized city. |
 
 Rate limit on `/api/weather`: **60 requests per minute per IP** with IETF draft-8 standard headers.
 
@@ -357,3 +357,10 @@ Claude was used as a research and review partner throughout this project: checki
 - **Review.** Auditing the error-mapping table for edge cases, validating the cache single-flight approach before implementing it, and an independent pass on the test strategy.
 
 Every line of committed code was written or reviewed deliberately. Anything surfaced by AI research got cross-checked against the official docs before it landed (example: the `z.url()` change and the `tseslint.config()` deprecation both got doc checks). The project's `CLAUDE.md` hierarchy exists specifically to keep future AI-assisted sessions consistent with the decisions already made. AI as a tool, not a shortcut.
+
+## Author
+
+**Trevor Tu**
+
+- GitHub: [@ToanThanhTu](https://github.com/ToanThanhTu)
+- LinkedIn: [linkedin.com/in/trevor-tu](https://www.linkedin.com/in/trevor-tu)

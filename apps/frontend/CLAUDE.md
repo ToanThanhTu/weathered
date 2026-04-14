@@ -16,6 +16,7 @@ src/
 ├── components/
 │   ├── ErrorBoundary.tsx      # app-root render error fallback (class component)
 │   ├── ThemeToggle.tsx        # Sun/Moon button consuming useTheme
+│   ├── Footer.tsx             # author byline + GitHub / LinkedIn links
 │   ├── main/                  # feature components  (→ CLAUDE.md)
 │   ├── states/                # idle / loading / error states  (→ CLAUDE.md)
 │   └── ui/                    # shadcn/ui generated (owned, editable)
@@ -53,6 +54,12 @@ src/
 - Shows the icon for the **target** theme: sun when in dark mode (target is light), moon when in light mode (target is dark). Matches the GitHub/Vercel convention.
 - `aria-label` reflects the action (`"Switch to dark theme"` / `"Switch to light theme"`).
 - Rendered in the header bar in `App.tsx`, beside the "NSW Rural Fire Service" kicker.
+
+### `components/Footer.tsx` — author byline + social links
+
+- Top-border row at the bottom of `<main>` with "Built by **Trevor Tu**" on the left and square icon-button links to GitHub + LinkedIn on the right.
+- Icons from `lucide-react` (`Github`, `Linkedin`). Links open in a new tab with `rel="noopener noreferrer"` and have `aria-label`s for screen readers.
+- Hover state uses `hover:border-rfs-red hover:text-rfs-red` — one more restrained brand moment at the page edge.
 
 ### `app.css` — Tailwind v4 theme
 

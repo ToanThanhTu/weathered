@@ -2,6 +2,7 @@ import './app.css'
 
 import { useEffect, useState } from 'react'
 
+import { Footer } from '@/components/Footer'
 import { SearchBar } from '@/components/main/SearchBar'
 import { WeatherPanel } from '@/components/main/WeatherPanel'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -64,6 +65,8 @@ export default function App() {
         <SearchBar onSearch={handleSearch} />
         <WeatherPanel city={city} />
       </div>
+
+      <Footer />
     </main>
   )
 }
