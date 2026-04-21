@@ -281,9 +281,11 @@ The compiler auto-memoizes based on dependency analysis, so there's no `useMemo`
 
 The app is a single view. URL state lives in `?city=` via native `URLSearchParams` + `history.pushState`, with a `popstate` listener for back/forward. Adding React Router for one route is dependency weight without a problem to solve. A second view would justify a router.
 
-### Shared package with no dev build step
+### Shared package build pipeline
 
-Both dev consumers (`tsx` for backend, Vite for frontend) understand TypeScript natively, so in dev `packages/shared` exports `src/index.ts` directly. No intermediate watcher, no stale compiled output. Production containers compile shared to `dist/` because Node 24 refuses type stripping under `node_modules`; the dev trick is permanently closed for container builds.
+`packages/shared` compiles to `dist/` via `tsc`. The `package.json` has `exports.import` pointing at `./dist/index.js`, `files: ["dist"]` so `pnpm deploy` includes the compiled output, and a `prepare` lifecycle script that auto-builds on `pnpm install`. Dev uses `tsc --watch` for incremental rebuilds; the root `pnpm dev` script chains `pnpm -r build && pnpm -r --parallel dev` so shared is compiled once before the backend and frontend dev servers start.
+
+Originally I tried a no-build-step approach with `exports` pointing at `./src/index.ts` and relying on `tsx` and Vite to resolve TypeScript natively. That worked in dev but broke in production containers: Node 24 refuses to type-strip files under `node_modules`, so shared has to ship as compiled JavaScript. Reverting to a real build step and adding `prepare` keeps fresh clones working without anyone thinking about it.
 
 ### Tests colocate with source
 
