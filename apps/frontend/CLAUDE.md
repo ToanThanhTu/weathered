@@ -53,28 +53,28 @@ src/
 - Square icon button (`h-9 w-9 border-2`), variant `outline`, consumes the `useTheme` hook from `hooks/useTheme.ts`.
 - Shows the icon for the **target** theme: sun when in dark mode (target is light), moon when in light mode (target is dark). Matches the GitHub/Vercel convention.
 - `aria-label` reflects the action (`"Switch to dark theme"` / `"Switch to light theme"`).
-- Rendered in the header bar in `App.tsx`, beside the "NSW Rural Fire Service" kicker.
+- Rendered in the header bar in `App.tsx`, beside the `Weathered` title.
 
 ### `components/Footer.tsx` — author byline + social links
 
 - Top-border row at the bottom of `<main>` with "Built by **Trevor Tu**" on the left and square icon-button links to GitHub + LinkedIn on the right.
 - Icons from `lucide-react` (`Github`, `Linkedin`). Links open in a new tab with `rel="noopener noreferrer"` and have `aria-label`s for screen readers.
-- Hover state uses `hover:border-rfs-red hover:text-rfs-red` — one more restrained brand moment at the page edge.
+- Hover state uses `hover:border-brand hover:text-brand` — one more restrained brand moment at the page edge.
 
 ### `app.css` — Tailwind v4 theme
 
 - `@import "tailwindcss"` — no `tailwind.config.js`, no `postcss.config.js`. Tailwind v4 is CSS-first.
 - Root `@theme` block defines `--font-sans`, `--font-heading`, `--font-mono`. These auto-generate the `font-sans`, `font-heading`, `font-mono` utility classes.
-- `:root` block holds light-theme OKLCH tokens (including `--rfs-red` and `--radius: 0`). `.dark` block holds dark-theme overrides.
-- `@theme inline` block exposes shadcn's color and radius tokens to Tailwind (`--color-*`, `--radius-sm` etc.) and the custom `--color-rfs-red: var(--rfs-red)` so `bg-rfs-red` / `border-rfs-red` / `ring-rfs-red` utilities exist.
+- `:root` block holds light-theme OKLCH tokens (including `--brand` and `--radius: 0`). `.dark` block holds dark-theme overrides.
+- `@theme inline` block exposes shadcn's color and radius tokens to Tailwind (`--color-*`, `--radius-sm` etc.) and the custom `--color-brand: var(--brand)` so `bg-brand` / `border-brand` / `ring-brand` utilities exist.
 - `@custom-variant dark (&:is(.dark *))` makes the `dark:` Tailwind variant key off the `.dark` class on `<html>`.
 
 ## Design tokens
 
 ### Typography
 
-- Body (`--font-sans`): `'Arial', 'Helvetica', system-ui, sans-serif`. Matches RFS's own website. No fontsource import needed — Arial ships with every OS.
-- Headings (`--font-heading`): `'Gotham', 'Montserrat Variable', 'Arial', 'Helvetica', system-ui, sans-serif`. Gotham is RFS's actual brand font (Hoefler & Co., proprietary, not committed). Montserrat is the open-source Gotham fallback, self-hosted via `@fontsource-variable/montserrat`.
+- Body (`--font-sans`): `'Arial', 'Helvetica', system-ui, sans-serif`. No fontsource import needed — Arial ships with every OS.
+- Headings (`--font-heading`): `'Montserrat Variable', 'Arial', 'Helvetica', system-ui, sans-serif`. Montserrat is self-hosted via `@fontsource-variable/montserrat`.
 - Mono (`--font-mono`): `'JetBrains Mono Variable', monospace`. Used for the coordinate row in WeatherCard.
 - Apply via Tailwind's `font-heading` / `font-sans` / `font-mono` utility classes. Do not reference the raw CSS variables in JSX.
 
@@ -83,8 +83,8 @@ src/
 - **Lyra radius**: `--radius: 0`. All cards, inputs, buttons are perfectly square. The `@theme inline` chain of `--radius-sm/md/lg/xl` is `calc(var(--radius) * x)` so zero cascades through every size variant.
 - **Off-white backgrounds**: light `--background` / `--card` / `--popover` are `oklch(0.985 0 0)` (≈ `#fafafa`), not pure white.
 - **Off-black dark mode**: dark `--background` is `oklch(0.145 0 0)` (≈ `#252525`).
-- **RFS red**: `--rfs-red: oklch(0.58 0.22 28)` in light, `oklch(0.66 0.22 28)` in dark (brighter for legibility). Exposed as `--color-rfs-red` so `bg-rfs-red`, `text-rfs-red`, `border-rfs-red`, `ring-rfs-red` are available.
-- **Single accent rule**: RFS red appears in exactly three places: the header underline bar, the search input focus ring, and the search button hover state. Everywhere else stays neutral.
+- **Brand accent**: `--brand: oklch(0.58 0.22 28)` in light, `oklch(0.66 0.22 28)` in dark (brighter for legibility). Exposed as `--color-brand` so `bg-brand`, `text-brand`, `border-brand`, `ring-brand` are available.
+- **Single accent rule**: the brand colour appears in exactly three places: the header underline bar, the search input focus ring, and the search button hover state. Everywhere else stays neutral.
 
 ### Dark mode
 

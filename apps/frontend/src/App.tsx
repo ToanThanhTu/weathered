@@ -40,7 +40,7 @@ export default function App() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 md:py-12">
       <header className="mb-10">
-        <div className="flex items-end justify-between gap-4 border-b-4 border-rfs-red pb-4">
+        <div className="flex items-end justify-between gap-4 border-b-4 border-brand pb-4">
           <h1
             className={cn(
               'font-heading font-black tracking-tight text-4xl',
@@ -49,12 +49,7 @@ export default function App() {
           >
             Weathered
           </h1>
-          <div className="flex items-center gap-3">
-            <span className="hidden font-sans text-xs uppercase tracking-widest text-muted-foreground sm:block">
-              NSW Rural Fire Service
-            </span>
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           Current weather conditions for any city. Powered by Open-Meteo.

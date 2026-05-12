@@ -75,4 +75,4 @@ pnpm test:watch    # watch mode
 
 ## Environment
 
-No env vars required in dev. Vite's proxy handles the backend URL. Production builds read `VITE_API_BASE_URL` (wired up as part of Day 4 deployment).
+No env vars required in dev. Vite's proxy handles the backend URL. Production builds would read `VITE_API_BASE_URL` if deployed to a separate origin.

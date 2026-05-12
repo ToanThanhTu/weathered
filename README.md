@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ToanThanhTu/weathered/actions/workflows/ci.yml/badge.svg)](https://github.com/ToanThanhTu/weathered/actions/workflows/ci.yml)
 
-Full-stack weather app consuming the public [Open-Meteo](https://open-meteo.com/) API. Built for the NSW Rural Fire Service Junior Full Stack Developer technical assignment.
+Full-stack weather app consuming the public [Open-Meteo](https://open-meteo.com/) API.
 
 Search for a city, see current conditions. Handles empty searches, unknown cities, upstream failures, and rate limits with typed error states end-to-end.
 
@@ -70,8 +70,6 @@ Failure modes: validation errors, city-not-found, upstream 4xx/5xx/timeout, sche
 | Testing       | **Vitest 4** + **Supertest** + **RTL** + **jsdom** | In-process backend tests via the `createServer()` factory. Role-based frontend queries.               |
 | CI            | **GitHub Actions**                                 | `lint → typecheck → test` on push and PR, concurrency groups, frozen lockfile.                        |
 | Container     | **Multi-stage Docker** + **nginx** reverse proxy   | Compose brings up the whole stack. nginx proxies `/api` to backend (same-origin).                     |
-
-See [`docs/Weathered-plan.md`](docs/Weathered-plan.md) for the full build log and decision history.
 
 ## Prerequisites
 
@@ -179,8 +177,8 @@ All failures (validation, not-found, upstream, rate limit, internal) return the 
 ## UI and design
 
 - **Lyra-inspired visual language.** Square corners throughout (`--radius: 0`), thick borders instead of shadows, strong typographic hierarchy with one dominant element per card (the temperature at `text-8xl`).
-- **RFS red as a single accent.** Used in exactly three places: the header underline bar, the search input focus ring, and the search button hover state. Everywhere else stays neutral.
-- **Typography.** Headings use `'Gotham', 'Montserrat Variable', 'Arial', ...`. Gotham is RFS's actual brand font (Hoefler & Co., proprietary, not committed); Montserrat is the open-source fallback, self-hosted via fontsource. Body text uses `'Arial', 'Helvetica', ...` to match the RFS website. Tailwind v4 `@theme` tokens auto-generate the `font-heading` and `font-sans` utility classes.
+- **Single brand accent.** A red token (`--brand`) is used in exactly three places: the header underline bar, the search input focus ring, and the search button hover state. Everywhere else stays neutral.
+- **Typography.** Headings use `'Montserrat Variable', 'Arial', 'Helvetica', ...`, self-hosted via fontsource. Body text uses `'Arial', 'Helvetica', ...`. Tailwind v4 `@theme` tokens auto-generate the `font-heading` and `font-sans` utility classes.
 - **Dark mode.** Class-based (`dark` on `<html>`) with OKLCH overrides in `app.css`. Persists to `localStorage`; respects `prefers-color-scheme` on first visit. An inline script in `index.html` sets the class before first paint to prevent a flash of the wrong theme. `<meta name="theme-color">` tags sync the browser chrome to the OS preference.
 - **Off-white + off-black.** Light backgrounds are `oklch(0.985 0 0)` (≈ `#fafafa`) rather than pure white. Dark backgrounds are `oklch(0.145 0 0)` (≈ `#252525`).
 - **Responsive.** One breakpoint at `sm:` (640px). Below that, the WeatherCard header and hero stack vertically, the h1 shrinks from `text-5xl` to `text-4xl`, and metric cells get tighter padding. Above that, the full desktop layout. Breakpoints are composed via the project's `cn()` convention (one string per breakpoint tier) for scannable responsive classNames.
@@ -207,7 +205,7 @@ weathered/
 │       └── src/
 │           ├── App.tsx                # root + URL sync via pushState/popstate
 │           ├── main.tsx               # ErrorBoundary + QueryClientProvider
-│           ├── app.css                # Tailwind v4 @theme, Lyra radius, RFS red, dark mode
+│           ├── app.css                # Tailwind v4 @theme, Lyra radius, brand accent, dark mode
 │           ├── components/
 │           │   ├── ErrorBoundary.tsx  # class component (React 19 has no hook equivalent)
 │           │   ├── ThemeToggle.tsx    # Sun/Moon button, consumes useTheme
@@ -223,7 +221,7 @@ weathered/
 ├── packages/
 │   └── shared/                        # Zod schemas + inferred types (single source of truth)
 │
-├── docs/                              # Brief, implementation plan, screenshots
+├── docs/                              # Screenshots
 ├── .github/workflows/ci.yml           # lint + typecheck + test
 ├── docker-compose.yml
 ├── CLAUDE.md                          # project-wide guidance (see also per-layer CLAUDE.md)
@@ -255,7 +253,7 @@ Backend and frontend share a contract. Rather than duplicating TypeScript interf
 
 ### Backend proxy, not a thin API key hider
 
-The proxy pattern centralizes validation, caching, rate limiting, structured logging, and error normalization in one place. The frontend never talks to Open-Meteo directly, so the upstream is swappable without touching the frontend. The assignment explicitly asks for this pattern.
+The proxy pattern centralizes validation, caching, rate limiting, structured logging, and error normalization in one place. The frontend never talks to Open-Meteo directly, so the upstream is swappable without touching the frontend.
 
 ### Express 5 over Fastify or NestJS
 
@@ -337,7 +335,7 @@ pnpm test:watch    # watch mode (per-package)
 - 5-minute staleness is acceptable for current conditions (Open-Meteo updates on a similar cadence).
 - `observedAt` is a real UTC ISO string; the backend converts from Open-Meteo's naive local time plus `utc_offset_seconds`. The frontend renders it in the city's IANA `timezone` so a user in Sydney searching London sees London-local observation time.
 - The cache is in-memory per backend instance. Multi-instance deployments would want Redis; the `cached()` interface is designed to swap cleanly.
-- Gotham is referenced first in the heading font stack for machines that have it licensed, but no Gotham files are committed (proprietary). Most viewers see Montserrat as the fallback.
+- Heading font (Montserrat) is self-hosted via `@fontsource-variable/montserrat`. Body font is Arial (system).
 
 ## What's next with more time
 
@@ -347,7 +345,7 @@ Ranked roughly by user-visible impact:
 2. **Persistence.** Search history in `localStorage` (fast) or a small sqlite backend table (better). Users re-check the same cities constantly.
 3. **°C/°F toggle.** User preference in `localStorage`, applied at render time.
 4. **Playwright smoke test.** One browser test covering the happy path end-to-end through the nginx proxy and cache. Complements the existing Supertest + RTL pyramid with a full-stack check.
-5. **Real deployment (Vercel + Koyeb).** Frontend on Vercel, backend on Koyeb's always-on free tier, wired via a single `ALLOWED_ORIGIN` env var. Descoped on 2026-04-14 to protect time for UI/UX polish and this README. The walkthrough runs locally via `pnpm dev` or `docker compose up`.
+5. **Deployment.** Frontend on Vercel, backend on Koyeb's always-on free tier (always-on matters; serverless cold starts would be visible to users). Wired via a single `ALLOWED_ORIGIN` env var. The local run via `pnpm dev` or `docker compose up` is the current demo path.
 6. **Multi-instance cache.** Swap `LRUCache` for a Redis-backed store so cache state survives restarts and scales horizontally. The `cached()` interface is already designed for this swap.
 
 ## AI usage

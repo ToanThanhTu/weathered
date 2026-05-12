@@ -77,7 +77,7 @@ All are sub-10-line additions.
 
 🟢 **GREEN LIGHT, APPROVED**
 
-No Critical issues. The two Warnings worth fixing before submission are the `api-client` status-code loss (visible behaviour) and the `SearchBar` aria plumbing (one-line a11y win for the interview).
+No Critical issues. The two Warnings worth fixing are the `api-client` status-code loss (visible behaviour) and the `SearchBar` aria plumbing (one-line a11y win).
 
 ---
 
@@ -102,7 +102,7 @@ return promise.catch((err: unknown) => {
 
 ### Security
 
-🟡 **Warning** — [weather.ts (shared schema)](packages/shared/src/schemas/weather.ts#L6) `city` is only length-capped. URL encoding prevents injection, but a Unicode-letter allowlist is a cheap hardening win and a good interview talking point:
+🟡 **Warning** — [weather.ts (shared schema)](packages/shared/src/schemas/weather.ts#L6) `city` is only length-capped. URL encoding prevents injection, but a Unicode-letter allowlist is a cheap hardening win:
 
 ```ts
 city: z.string().trim().min(1).max(100).regex(/^[\p{L}\p{M}\s'.-]+$/u)
@@ -148,13 +148,13 @@ message: {
 
 🟢 **GREEN LIGHT, APPROVED**
 
-The single fix genuinely worth making before the demo is the `cached()` HOF ordering — a one-line change that locks in single-flight correctness and is a strong interview talking point. Everything else is hardening or test coverage.
+The single fix genuinely worth making is the `cached()` HOF ordering — a one-line change that locks in single-flight correctness. Everything else is hardening or test coverage.
 
 ---
 
 ## Summary
 
-Both layers approved. Suggested pre-submission punch list (all small, interview-visible wins):
+Both layers approved. Suggested punch list (small, high-leverage wins):
 
 1. [cached.ts:26-32](apps/backend/src/cache/cached.ts#L26) — fix promise-ordering in `cached()` HOF.
 2. [api-client.ts:15-31](apps/frontend/src/lib/api-client.ts#L15) — branch on HTTP status so 429/404 map correctly when upstream body isn't JSON.

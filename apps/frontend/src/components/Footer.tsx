@@ -2,7 +2,7 @@ const GITHUB_URL = 'https://github.com/ToanThanhTu'
 const LINKEDIN_URL = 'https://www.linkedin.com/in/trevor-tu'
 
 const iconLinkClass =
-  'inline-flex h-9 w-9 items-center justify-center border-2 text-muted-foreground transition-colors hover:border-rfs-red hover:text-rfs-red'
+  'inline-flex h-9 w-9 items-center justify-center border-2 text-muted-foreground transition-colors hover:border-brand hover:text-brand'
 
 export function Footer() {
   return (

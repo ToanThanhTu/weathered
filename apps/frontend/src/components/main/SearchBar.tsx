@@ -41,11 +41,11 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             type="text"
             name="city"
             placeholder="Sydney, London, Tokyo..."
-            className="h-12 border-2 text-base focus-visible:ring-rfs-red md:text-base"
+            className="h-12 border-2 text-base focus-visible:ring-brand md:text-base"
           />
           <Button
             type="submit"
-            className="h-12 bg-foreground px-6 text-base text-background hover:bg-rfs-red"
+            className="h-12 bg-foreground px-6 text-base text-background hover:bg-brand"
           >
             Search
           </Button>

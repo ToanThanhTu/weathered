@@ -19,9 +19,7 @@ Nested docs:
 
 ## Project context
 
-Weathered is a full-stack weather app built for the NSW Rural Fire Service Junior Full Stack Developer technical assignment. The full plan lives in [`docs/Weathered-plan.md`](docs/Weathered-plan.md) — start there for architecture, schedule, and build history.
-
-**Hard deadline:** submit EOD 2026-04-14. Interview 2026-04-16.
+Weathered is a full-stack weather app consuming the public [Open-Meteo](https://open-meteo.com/) API. React 19 SPA, Express 5 proxy backend, Zod-shared types, in a pnpm monorepo. Personal portfolio project.
 
 ## Stack (April 2026)
 
@@ -43,7 +41,7 @@ apps/
   frontend/   # React 19 SPA
 packages/
   shared/     # Zod schemas + inferred types, imported by both apps
-docs/         # Assignment brief + implementation plan
+docs/         # Screenshots
 ```
 
 Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
@@ -110,7 +108,7 @@ Workspace packages are referenced as `@weathered/<name>` via `workspace:*`.
 | `.npmrc`              | `force-legacy-deploy=true` — `pnpm deploy` uses pre-pnpm-10 behaviour (workspace deps copied as-is, no injection). Required for the Docker build. |
 | `.dockerignore`       | Excludes `node_modules`, `.git`, `dist`, real `.env` files from the Docker build context. Keeps `.env.example` and `.env.test` available. |
 | `docker-compose.yml`  | Two services: `backend` (Node 24 alpine), `frontend` (nginx alpine). Frontend depends on backend healthcheck. |
-| `docs/Weathered-plan.md` | Full implementation plan. Read first for architecture, schedule, talking points.     |
+| `docs/`                  | Screenshots of the app (light + dark mode).                                          |
 
 ## Running locally
 

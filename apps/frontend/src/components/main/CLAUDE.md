@@ -14,8 +14,8 @@ Test files colocate with the component under test: `WeatherPanel.test.tsx` sits 
 - On valid submit, calls `onSearch(city)`. The parent (`App.tsx`) owns the city state.
 - `<FieldLabel>` uses the small uppercase-tracked pattern (`text-xs uppercase tracking-widest text-muted-foreground`) to match the kicker style used throughout WeatherCard and EmptyState.
 - `<Input>` has `h-12 border-2 text-base` for a confident touch target and Lyra-thick borders. `md:text-base` counters shadcn's default `md:text-xs` override.
-- Focus ring uses `focus-visible:ring-rfs-red` — the only place an input touches the brand accent.
-- `<Button>` is `h-12 px-6 text-base bg-foreground text-background hover:bg-rfs-red`. Solid dark by default, turns RFS red on hover — one more restrained brand moment.
+- Focus ring uses `focus-visible:ring-brand` — the only place an input touches the brand accent.
+- `<Button>` is `h-12 px-6 text-base bg-foreground text-background hover:bg-brand`. Solid dark by default, turns brand-red on hover — one more restrained brand moment.
 - `data-invalid={error ? true : undefined}` on `<Field>` — the attribute is absent when no error (not the string `"false"`).
 
 ### `WeatherCard.tsx` — weather data display
