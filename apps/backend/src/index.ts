@@ -11,7 +11,15 @@ net.setDefaultAutoSelectFamily(false)
 const app = createServer()
 
 const server = app.listen(config.PORT, () => {
-  logger.info({ port: config.PORT }, 'Server listening')
+  logger.info(
+    {
+      port: config.PORT,
+      nodeEnv: config.NODE_ENV,
+      logLevel: config.LOG_LEVEL,
+      allowedOrigin: config.ALLOWED_ORIGIN,
+    },
+    'Server listening',
+  )
 })
 
 // Bound total request lifetime. Two sequential 5s upstream calls + slow client

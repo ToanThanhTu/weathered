@@ -27,11 +27,8 @@ export function createServer(): Express {
     pinoHttp({
       logger,
       genReqId: (req, res) => {
-        const existing = req.headers['x-request-id']
-        const id = typeof existing === 'string' ? existing : randomUUID()
-
+        const id = sanitizeRequestId(req.headers['x-request-id']) ?? randomUUID()
         res.setHeader('x-request-id', id)
-
         return id
       },
     }),
@@ -46,4 +43,18 @@ export function createServer(): Express {
   app.use(errorHandler)
 
   return app
+}
+
+/**
+ * Validates a client-supplied `x-request-id` header. Returns the trimmed value
+ * if it's a non-empty URL-safe string up to 128 chars; otherwise `null` so the
+ * caller falls back to a fresh UUID. Guards against log forging, header
+ * injection, and resource waste from oversized IDs.
+ */
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/
+
+function sanitizeRequestId(raw: string | string[] | undefined): string | null {
+  if (typeof raw !== 'string') return null
+  const trimmed = raw.trim()
+  return REQUEST_ID_PATTERN.test(trimmed) ? trimmed : null
 }

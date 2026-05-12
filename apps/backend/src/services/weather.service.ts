@@ -1,10 +1,20 @@
 import type { WeatherResponse } from '@weathered/shared'
+import { cachedGeocode } from '../cache/geocode.cache.js'
 import { CityNotFoundError } from '../errors/app-error.js'
-import { fetchForecast, geocode } from './open-meteo.js'
+import { fetchForecast } from './open-meteo.js'
 
-/** Orchestrates geocode → forecast → normalize. Throws `CityNotFoundError` when the geocoder has no match. */
+/**
+ * Orchestrates geocode → forecast → normalize. Throws `CityNotFoundError` when
+ * the geocoder has no match.
+ *
+ * Two cache layers compose here: `cachedGeocode` (24h, city → coords) wraps
+ * the slow-changing geocode lookup, and the outer `cached(getWeather)` in
+ * `weather.cache.ts` (5min, city → full response) covers the forecast leg.
+ * When the 5-min outer TTL expires for a popular city, only the forecast call
+ * fires again — the geocode is reused from the inner cache.
+ */
 export async function getWeather(city: string): Promise<WeatherResponse> {
-  const geocodeResult = await geocode(city)
+  const geocodeResult = await cachedGeocode(city)
 
   if (!geocodeResult) {
     throw new CityNotFoundError(`City ${city} not found.`)

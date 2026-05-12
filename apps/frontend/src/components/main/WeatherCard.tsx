@@ -53,12 +53,21 @@ export function WeatherCard({ weather }: WeatherCardProps) {
               'sm:text-8xl',
             )}
           >
-            {Math.round(current.temperature)}°
+            <span aria-hidden="true">{Math.round(current.temperature)}°</span>
+            <span className="sr-only">
+              {Math.round(current.temperature)} degrees Celsius
+            </span>
           </span>
           <div className="pb-2">
             <div className="font-heading text-2xl">{current.condition}</div>
             <div className="text-sm text-muted-foreground">
-              Feels like {Math.round(current.apparentTemperature)}°
+              <span aria-hidden="true">
+                Feels like {Math.round(current.apparentTemperature)}°
+              </span>
+              <span className="sr-only">
+                Feels like {Math.round(current.apparentTemperature)} degrees
+                Celsius
+              </span>
             </div>
           </div>
         </div>
@@ -69,16 +78,19 @@ export function WeatherCard({ weather }: WeatherCardProps) {
           icon={<Droplets className="h-4 w-4" />}
           label="Humidity"
           value={`${String(current.humidity)}%`}
+          srLabel={`${String(current.humidity)} percent`}
         />
         <Metric
           icon={<Wind className="h-4 w-4" />}
           label="Wind"
           value={`${String(current.windSpeed)} km/h`}
+          srLabel={`${String(current.windSpeed)} kilometres per hour`}
           className="border-l"
         />
         <Metric
           label="Direction"
           value={`${String(current.windDirection)}°`}
+          srLabel={`${String(current.windDirection)} degrees`}
           className="border-l"
         />
       </div>
@@ -94,10 +106,12 @@ interface MetricProps {
   icon?: ReactNode
   label: string
   value: string
+  /** Optional screen-reader-only version of `value`. When provided, the visible value is hidden from assistive tech and this string is announced instead. */
+  srLabel?: string
   className?: string
 }
 
-function Metric({ icon, label, value, className }: MetricProps) {
+function Metric({ icon, label, value, srLabel, className }: MetricProps) {
   return (
     <div
       className={cn(
@@ -116,7 +130,14 @@ function Metric({ icon, label, value, className }: MetricProps) {
           'sm:text-xl',
         )}
       >
-        {value}
+        {srLabel ? (
+          <>
+            <span aria-hidden="true">{value}</span>
+            <span className="sr-only">{srLabel}</span>
+          </>
+        ) : (
+          value
+        )}
       </div>
     </div>
   )

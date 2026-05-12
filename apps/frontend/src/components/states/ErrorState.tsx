@@ -1,4 +1,4 @@
-import { ERROR_CODES } from '@weathered/shared'
+import { ERROR_CODES, type ErrorCode } from '@weathered/shared'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import type { ApiError } from '@/lib/api-client'
 
@@ -6,7 +6,17 @@ interface ErrorStateProps {
   error: ApiError
 }
 
-const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
+interface ErrorMessage {
+  title: string
+  description: string
+}
+
+/**
+ * Lookup of friendly user-facing messages per error code. `Partial<Record<...>>`
+ * means keys must be real `ErrorCode` values (typos fail at compile time) but
+ * not every code needs an entry \u2014 anything missing falls through to `DEFAULT_ERROR`.
+ */
+const ERROR_MESSAGES: Partial<Record<ErrorCode, ErrorMessage>> = {
   [ERROR_CODES.CITY_NOT_FOUND]: {
     title: 'City not found',
     description:
@@ -25,6 +35,10 @@ const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
     title: 'Too many requests',
     description:
       'You\u2019re searching too fast. Please wait a moment and try again.',
+  },
+  [ERROR_CODES.NOT_FOUND]: {
+    title: 'Not found',
+    description: 'The requested resource doesn\u2019t exist.',
   },
 }
 
