@@ -41,6 +41,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             type="text"
             name="city"
             placeholder="Sydney, London, Tokyo..."
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'search-city-error' : undefined}
             className="h-12 border-2 text-base focus-visible:ring-brand md:text-base"
           />
           <Button
@@ -50,7 +52,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             Search
           </Button>
         </ButtonGroup>
-        <FieldError>{error}</FieldError>
+        <FieldError id="search-city-error">{error}</FieldError>
       </Field>
     </form>
   )

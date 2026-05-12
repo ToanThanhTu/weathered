@@ -55,6 +55,7 @@ export type WeatherResponse = z.infer<typeof WeatherResponseSchema>
 export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   CITY_NOT_FOUND: 'CITY_NOT_FOUND',
+  NOT_FOUND: 'NOT_FOUND',
   UPSTREAM_ERROR: 'UPSTREAM_ERROR',
   RATE_LIMITED: 'RATE_LIMITED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
@@ -68,6 +69,7 @@ export const ErrorResponseSchema = z.object({
     code: z.enum([
       ERROR_CODES.VALIDATION_ERROR,
       ERROR_CODES.CITY_NOT_FOUND,
+      ERROR_CODES.NOT_FOUND,
       ERROR_CODES.UPSTREAM_ERROR,
       ERROR_CODES.INTERNAL_ERROR,
       ERROR_CODES.RATE_LIMITED,

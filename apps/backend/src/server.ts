@@ -8,6 +8,7 @@ import { logger } from './logger.js'
 import { healthRouter } from './routes/health.js'
 import { weatherRouter } from './routes/weather.js'
 import { errorHandler } from './middleware/error-handler.js'
+import { notFoundHandler } from './middleware/not-found.js'
 import { weatherRateLimiter } from './middleware/rate-limit.js'
 
 /** Builds and returns a configured Express app without starting it. Testable with Supertest. */
@@ -41,6 +42,7 @@ export function createServer(): Express {
   app.use('/api/health', healthRouter)
   app.use('/api/weather', weatherRouter)
 
+  app.use(notFoundHandler)
   app.use(errorHandler)
 
   return app

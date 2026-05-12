@@ -14,6 +14,10 @@ const server = app.listen(config.PORT, () => {
   logger.info({ port: config.PORT }, 'Server listening')
 })
 
+// Bound total request lifetime. Two sequential 5s upstream calls + slow client
+// could otherwise keep a connection open indefinitely. 15s is the ceiling.
+server.requestTimeout = 15_000
+
 const shutdown = (signal: string) => {
   logger.info(`${signal} received, shutting down gracefully`)
   server.close(() => {

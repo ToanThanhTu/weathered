@@ -4,7 +4,11 @@ import { ERROR_CODES, ErrorResponse } from '@weathered/shared'
 
 /** Central error handler. Translates `AppError` to its HTTP status and code; unknown errors become a generic 500 with no internal detail leaked. Must be registered last. */
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
-  req.log.error({ err }, 'Request failed.')
+  // 4xx are user/client faults (validation, not-found, etc.) — log at `warn`
+  // so dashboards don't conflate them with genuine 5xx bugs.
+  const level =
+    err instanceof AppError && err.statusCode < 500 ? 'warn' : 'error'
+  req.log[level]({ err }, 'Request failed.')
 
   if (err instanceof AppError) {
     const errorResponse: ErrorResponse = {

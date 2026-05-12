@@ -13,21 +13,26 @@ export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(path)
 
   if (!res.ok) {
-    try {
-      const errorResponse = (await res.json()) as ErrorResponse
-      throw new ApiError(errorResponse)
-    } catch (err) {
-      if (err instanceof ApiError) {
-        throw err
-      }
+    const body = (await res.json().catch(() => null)) as ErrorResponse | null
+    if (body?.error) throw new ApiError(body)
 
-      throw new ApiError({
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred',
-        },
-      })
-    }
+    // Non-JSON or malformed body (e.g. CDN HTML page on 502, infra-layer 429).
+    // Map known HTTP statuses to typed codes so ErrorState renders the right message.
+    const code: ErrorResponse['error']['code'] =
+      res.status === 429
+        ? 'RATE_LIMITED'
+        : res.status === 404
+          ? 'CITY_NOT_FOUND'
+          : res.status >= 500
+            ? 'UPSTREAM_ERROR'
+            : 'INTERNAL_ERROR'
+
+    throw new ApiError({
+      error: {
+        code,
+        message: res.statusText || 'An unexpected error occurred',
+      },
+    })
   }
 
   const data: T = (await res.json()) as unknown as T

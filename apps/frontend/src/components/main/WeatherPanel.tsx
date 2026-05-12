@@ -11,10 +11,12 @@ interface WeatherPanelProps {
 export function WeatherPanel({ city }: WeatherPanelProps) {
   const { data, error, isLoading } = useWeather(city)
 
-  if (!city) return <EmptyState />
-  if (isLoading) return <LoadingSkeleton />
-  if (error) return <ErrorState error={error} />
-  if (data) return <WeatherCard weather={data} />
-
-  return null
+  return (
+    <div role="status" aria-live="polite">
+      {!city && <EmptyState />}
+      {city && isLoading && <LoadingSkeleton />}
+      {city && !isLoading && error && <ErrorState error={error} />}
+      {city && !isLoading && !error && data && <WeatherCard weather={data} />}
+    </div>
+  )
 }

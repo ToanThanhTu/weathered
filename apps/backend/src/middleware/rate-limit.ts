@@ -1,3 +1,4 @@
+import { ERROR_CODES, type ErrorResponse } from '@weathered/shared'
 import { RequestHandler } from "express"
 import rateLimit from 'express-rate-limit'
 
@@ -9,8 +10,8 @@ export const weatherRateLimiter: RequestHandler = rateLimit({
   legacyHeaders: false,
   message: {
     error: {
-      code: 'RATE_LIMITED',
+      code: ERROR_CODES.RATE_LIMITED,
       message: 'Too many requests. Please wait a minute and try again.'
     }
-  }
+  } satisfies ErrorResponse
 })
